@@ -1,3 +1,3 @@
 Lien de DVF Géolocalisé : https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees
-Évolution et répartition géographique du rendement locatif à Lille : https://www.data.gouv.fr/datasets/evolution-et-repartition-geographique-du-rendement-locatif-a-lille/
-Encadrement des loyers de Lille : https://www.data.gouv.fr/datasets/encadrement-des-loyers-de-lille/
+Lien des data étude sup : https://www.data.gouv.fr/datasets/effectifs-detudiants-inscrits-dans-les-etablissements-et-les-formations-de-lenseignement-superieur-detail-par-etablissements/?utm_source=chatgpt.com
+Lien data population communales : https://www.data.gouv.fr/datasets/population-municipale-des-communes-france-entiere/?utm_source=chatgpt.com
