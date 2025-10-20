@@ -3,3 +3,5 @@ matplotlib
 requests
 geopy
 plotly
+seaborn
+unidecode
