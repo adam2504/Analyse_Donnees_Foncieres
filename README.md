@@ -31,29 +31,47 @@ Elle recherche un outil interactif pour :
 - Analyser les **quartiers vivants (nombre de resto, bars, et supermarchés)**
 - Fournir une **recommandation finale : "où investir avec 200k€ ?"**
 
+### 💰 Hypothèses financières
+
+| Élément | Montant estimé |
+|----------|----------------|
+| Prix d'achat visé | 160 000 – 180 000 € |
+| Apport personnel | 15 000 € |
+| Prêt immobilier estimé | 180 000 € sur 20 ans |
+| Budget total (frais inclus) | **≈ 200 000 €** |
+| Objectif de rentabilité brute | **≥ 5 %** |
+
 ---
 
-## 🧩 Objectifs du projet
+### 🧭 Objectifs du projet
+
+Créer un outil interactif permettant à Léa de :
+
+1. Analyser la **rentabilité locative brute** pour appartements étudiants ≤45m² dans **23 grandes villes françaises**
+2. Explorer visuellement les **villes à forte concentration étudiante** et analyser les **taux de vacance locative**
+3. Obtenir un **classement des villes** par rentabilité, prix et loyers pour décider où investir avec 200k€
+
+**Étapes détaillées :**
 
 1. **Collecte et préparation des données**
-   - Téléchargement des données foncières DVF (Demandes de Valeurs Foncières)
-   - Nettoyage et transformation : gestion des valeurs manquantes, normalisation des types de biens, géocodage éventuel
-   - Agrégation par commune et type de bien
+   - Téléchargement et filtrage des données foncières DVF pour les 23 villes étudiantes françaises
+   - Traitement des données de loyers (Observatoire des Loyers)
+   - Nettoyage, agrégation par ville et calcul des prix/locations moyens
 
-2. **Analyse exploratoire**
-   - Étude de la répartition géographique des prix
-   - Identification des communes les plus dynamiques
-   - Analyse des tendances temporelles des prix au m²
+2. **Analyse de rentabilité**
+   - Calcul de la rentabilité brute = (Loyer annuel / Prix d'achat) × 100
+   - Fusion des données achats et loyers
+   - Classement des villes par rentabilité décroissante
 
 3. **Visualisation**
-   - Graphiques d’évolution des prix par commune et par type de bien  
-   - Carte interactive des prix moyens et de la rentabilité estimée  
-   - Histogrammes, boxplots et heatmaps selon les variables principales  
+   - Graphiques de rentabilité et prix par ville
+   - Cartes interactives des concentrations étudiantes et taux de vacance
+   - Tableaux de bord interactifs pour l'exploration
 
-4. **Recommandations**
-   - Classement des communes selon leur potentiel d’investissement  
-   - Suggestions de zones à surveiller pour les années à venir  
-   - Mise en avant des types de biens les plus performants  
+4. **Recommandations d'investissement**
+   - Identification des villes les plus rentables avec un budget 200k€
+   - Analyse des risques (vacance locative, tendance marché)
+   - Focus sur les appartements ≤45m² adaptés aux étudiants
 
 ---
 
