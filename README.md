@@ -7,16 +7,29 @@ Ce projet a pour objectif de mettre en pratique les compétences acquises en **d
 
 ---
 
-## 👤 Persona cible
+## 🎓 Persona cible
 
-**Persona choisi :** *Julien, investisseur locatif en région parisienne*  
+**Persona choisi :** *Léa, jeune investisseuse étudiante*
 
-Julien souhaite identifier les **villes d’Île-de-France les plus rentables** pour investir dans un bien locatif.  
-Il recherche un outil interactif lui permettant de :
-- Visualiser les **tendances de prix** dans les communes franciliennes  
-- Identifier les **zones à forte rentabilité locative**  
-- Comparer les **types de biens les plus attractifs (studios, T2, maisons, etc.)**  
-- Déterminer les **zones à éviter (prix trop élevés, faible rendement)**  
+**Profil :**
+- 👩 24 ans, diplômée de l'EM Lyon
+- 💼 Première expérience professionnelle après 2 ans d'alternance
+- 💰 Aide parentale pour le financement + épargne personnelle (~15 000 €)
+- 🎯 Objectif : réaliser un **premier investissement locatif** dans une **ville étudiante dynamique**
+
+Léa souhaite trouver le **meilleur investissement locatif étudiant** possible avec un **budget global de 200 000 €**, en analysant la rentabilité brute dans les **principales villes étudiantes françaises** (studios et T1 ≤45m²).
+
+Elle recherche un outil interactif pour :
+- Évaluer le **taux de vacance locative** en France pour anticiper les périodes creuses (notamment l'été où les étudiants quittent les logements)
+- Visualiser les **villes à forte concentration étudiante** en France
+- Analyser l'**évolution du prix au m² à l'achat et des loyers étudiants** en France
+- Etudier **la rentabilité moyenne en France** en 2024
+- Analyser la **dynamique du marché immobilier local : croissance ou baisse des prix et loyers sur les 5 dernières années** (entre Rennes et Bordeaux)
+- Comparer **les quartiers les plus rentables (rentabilité brute)**
+- Analyser la **localisation/nombre des transports en commun** pour identifier les zones les plus attractives pour les étudiants
+- Analyser **la localisation des universités/grandes écoles**
+- Analyser les **quartiers vivants (nombre de resto, bars, et supermarchés)**
+- Fournir une **recommandation finale : "où investir avec 200k€ ?"**
 
 ---
 
@@ -65,4 +78,4 @@ Il recherche un outil interactif lui permettant de :
   - `matplotlib` / `seaborn` → visualisations statistiques  
   - `folium` ou `plotly` → cartes interactives  
   - `numpy` → calculs numériques  
-  - `ipywidgets` → interactivité (filtres dynamiques)  
+  - `ipywidgets` → interactivité (filtres dynamiques)
