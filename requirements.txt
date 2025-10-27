@@ -9,3 +9,4 @@ geopandas
 fiona
 osmnx
 nbformat
+openpyxl
