@@ -8,3 +8,4 @@ unidecode
 geopandas
 fiona
 osmnx
+nbformat
