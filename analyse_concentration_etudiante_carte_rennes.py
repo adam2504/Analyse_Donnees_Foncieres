@@ -112,8 +112,9 @@ iris_rennes_stats['nb_etudiants'] = iris_rennes_stats['nb_etudiants'].astype(int
 # Calcul des surfaces en mètres carrés (nécessite un CRS projeté)
 iris_rennes_stats = iris_rennes_stats.to_crs(epsg=2154)  # RGF93 / Lambert-93 (métric)
 iris_rennes_stats['area_m2'] = iris_rennes_stats.geometry.area
-iris_rennes_stats['etabs_per_m2'] = iris_rennes_stats['nb_etabs'] / iris_rennes_stats['area_m2']
-iris_rennes_stats['students_per_m2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_m2']
+iris_rennes_stats['area_km2'] = iris_rennes_stats['area_m2'] / 1000000
+iris_rennes_stats['etabs_per_km2'] = iris_rennes_stats['nb_etabs'] / iris_rennes_stats['area_km2']
+iris_rennes_stats['students_per_km2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_km2']
 
 
 # Re-conversion en EPSG:4326 pour la visualisation cartographique
@@ -127,9 +128,9 @@ fig = px.choropleth_mapbox(
     iris_plot,
     geojson=iris_plot.__geo_interface__,
     locations=iris_plot.index,
-    color='students_per_m2',  # couleur basée sur la densité étudiante initiale
+    color='students_per_km2',  # couleur basée sur la densité étudiante initiale
     hover_name='LIB_IRIS',
-    hover_data=['nb_etabs','area_m2','nb_etudiants'],  # données affichées au survol
+    hover_data=['nb_etabs','area_km2','nb_etudiants'],  # données affichées au survol
     mapbox_style="carto-positron",
     center={"lat":48.117, "lon":-1.677},  # centre sur Rennes
     zoom=12,
@@ -145,9 +146,9 @@ fig.update_traces(
 fig.update_layout(
     coloraxis=dict(
         colorscale=colorscale,
-        cmin=iris_plot['students_per_m2'].min(),
-        cmax=iris_plot['students_per_m2'].max(),
-        colorbar=dict(title="Étudiants/m²")
+        cmin=iris_plot['students_per_km2'].min(),
+        cmax=iris_plot['students_per_km2'].max(),
+        colorbar=dict(title="Étudiants/km²")
     )
 )
 
@@ -172,10 +173,10 @@ fig.update_layout(
                     label="Densité",
                     method="update",
                     args=[
-                        {"z": [iris_plot['students_per_m2']]},  # variable de couleur
-                        {"coloraxis.cmin": iris_plot['students_per_m2'].min(),
-                         "coloraxis.cmax": iris_plot['students_per_m2'].max(),
-                         "coloraxis.colorbar.title": "Étudiants/m²"}
+                        {"z": [iris_plot['students_per_km2']]},  # variable de couleur
+                        {"coloraxis.cmin": iris_plot['students_per_km2'].min(),
+                         "coloraxis.cmax": iris_plot['students_per_km2'].max(),
+                         "coloraxis.colorbar.title": "Étudiants/km²"}
                     ]
                 ),
                 dict(

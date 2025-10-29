@@ -76,7 +76,8 @@ iris_rennes_stats = iris_rennes_stats.merge(
 # Surface et densité
 iris_rennes_stats = iris_rennes_stats.to_crs(epsg=2154)
 iris_rennes_stats['area_m2'] = iris_rennes_stats.geometry.area
-iris_rennes_stats['students_per_m2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_m2']
+iris_rennes_stats['area_km2'] = iris_rennes_stats['area_m2'] / 1_000_000
+iris_rennes_stats['students_per_km2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_km2']
 
 # ============================================================================
 # 5. WIDGET INTERACTIF
@@ -91,10 +92,10 @@ def make_fig(mode="Densité", top_n=10):
     - du nombre de top IRIS à afficher
     """
     if mode == "Densité":
-        data = iris_rennes_stats.sort_values(by='students_per_m2', ascending=False).head(top_n)
-        y_col = "students_per_m2"
+        data = iris_rennes_stats.sort_values(by='students_per_km2', ascending=False).head(top_n)
+        y_col = "students_per_km2"
         title = f"Top {top_n} IRIS les plus denses en étudiants - Rennes"
-        color_title = "Étudiants/m²"
+        color_title = "Étudiants/km²"
     else:
         data = iris_rennes_stats.sort_values(by='nb_etudiants', ascending=False).head(top_n)
         y_col = "nb_etudiants"

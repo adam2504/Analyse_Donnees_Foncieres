@@ -439,13 +439,14 @@ iris_rennes_stats['nb_etudiants'] = iris_rennes_stats['nb_etudiants'].astype(int
 
 iris_rennes_stats = iris_rennes_stats.to_crs(epsg=2154)  # crs projetée pour calculer surface en m²
 iris_rennes_stats['area_m2'] = iris_rennes_stats.geometry.area
-iris_rennes_stats['etabs_per_m2'] = iris_rennes_stats['nb_etabs'] / iris_rennes_stats['area_m2']
-iris_rennes_stats['students_per_m2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_m2']
+iris_rennes_stats['area_km2'] = iris_rennes_stats['area_m2'] / 1000000
+iris_rennes_stats['etabs_per_km2'] = iris_rennes_stats['nb_etabs'] / iris_rennes_stats['area_km2']
+iris_rennes_stats['students_per_km2'] = iris_rennes_stats['nb_etudiants'] / iris_rennes_stats['area_km2']
 
 colorscale = "YlOrRd"  # jaune = faible, rouge = élevé
 
 # Top 10 IRIS par densité (par défaut)
-top10_density = iris_rennes_stats.sort_values(by='students_per_m2', ascending=False).head(10)
+top10_density = iris_rennes_stats.sort_values(by='students_per_km2', ascending=False).head(10)
 
 # Top 10 IRIS par nombre d'étudiants
 top10_students = iris_rennes_stats.sort_values(by='nb_etudiants', ascending=False).head(10)
@@ -454,9 +455,9 @@ top10_students = iris_rennes_stats.sort_values(by='nb_etudiants', ascending=Fals
 fig = px.bar(
     top10_density,
     x='LIB_IRIS',
-    y='students_per_m2',
-    color='students_per_m2',
-    hover_data=['nb_etudiants','area_m2','nb_etabs'],
+    y='students_per_km2',
+    color='students_per_km2',
+    hover_data=['nb_etudiants','area_km2','nb_etabs'],
     color_continuous_scale=colorscale,
     title="Top 10 IRIS les plus denses en étudiants - Rennes"
 )
@@ -469,9 +470,9 @@ fig.update_layout(
     coloraxis=dict(
         colorscale=colorscale,
         reversescale=False,  # rouge = élevé, jaune = faible
-        cmin=top10_density['students_per_m2'].min(),
-        cmax=top10_density['students_per_m2'].max(),
-        colorbar=dict(title="Étudiants/m²")
+        cmin=top10_density['students_per_km2'].min(),
+        cmax=top10_density['students_per_km2'].max(),
+        colorbar=dict(title="Étudiants/km²")
     )
 )
 
@@ -487,12 +488,12 @@ fig.update_layout(
                     method="update",
                     args=[
                         {"x": [top10_density['LIB_IRIS']],
-                         "y": [top10_density['students_per_m2']],
-                         "marker.color": [top10_density['students_per_m2']]},
-                        {"coloraxis.cmin": top10_density['students_per_m2'].min(),
-                         "coloraxis.cmax": top10_density['students_per_m2'].max(),
-                         "coloraxis.colorbar.title": "Étudiants/m²",
-                         "yaxis.title": "Étudiants / m²"}
+                         "y": [top10_density['students_per_km2']],
+                         "marker.color": [top10_density['students_per_km2']]},
+                        {"coloraxis.cmin": top10_density['students_per_km2'].min(),
+                         "coloraxis.cmax": top10_density['students_per_km2'].max(),
+                         "coloraxis.colorbar.title": "Étudiants/km²",
+                         "yaxis.title": "Étudiants / km²"}
                     ]
                 ),
                 dict(
@@ -513,7 +514,7 @@ fig.update_layout(
     ]
 )
 
-fig.update_layout(xaxis_title="Quartier (IRIS)", yaxis_title="Étudiants / m²")
+fig.update_layout(xaxis_title="Quartier (IRIS)", yaxis_title="Étudiants / km²")
 fig.show()
 
 # ============================================================================
@@ -523,50 +524,145 @@ print("\n" + "=" * 80)
 print("GRAPHIQUE SCATTER : Correlation top10 commerces vs top10 etudiants")
 print("-" * 80)
 
-# Préparer les top10 avec les colonnes nécessaires
-top10_for_merge = top10[['LIB_IRIS', 'score_densite', 'total_commerces']].copy()
-top10_density_for_merge = top10_density[['LIB_IRIS', 'students_per_m2', 'nb_etudiants']].copy()
+# ============================================================================
+# AJOUT TRANSPORT DENSITY
+# ============================================================================
+print("\n" + "=" * 80)
+print("AJOUT DONNEES TRANSPORT RENNES")
+print("-" * 80)
 
-# Merge des deux top10 sur LIB_IRIS (jointure externe)
-merged_top10 = top10_for_merge.merge(
-    top10_density_for_merge,
+overpass_url = "http://overpass-api.de/api/interpreter"
+overpass_query = """
+[out:json][timeout:90];
+area["name"="Rennes"]["admin_level"="8"]->.searchArea;
+(
+  node["public_transport"="stop_position"](area.searchArea);
+  node["highway"="bus_stop"](area.searchArea);
+  node["railway"="station"](area.searchArea);
+  node["railway"="halt"](area.searchArea);
+  node["railway"="subway_entrance"](area.searchArea);
+);
+out center;
+"""
+
+print("Envoi de la requete a l'API Overpass pour transports...")
+try:
+    response = requests.post(overpass_url, data={"data": overpass_query}, timeout=120)
+    response.raise_for_status()
+    osm_data = response.json()
+    print(f"OK - {len(osm_data['elements'])} arpets recuperes")
+except Exception as e:
+    print(f"ERREUR - Impossible de recuperer les donnees OSM transports : {e}")
+    exit(1)
+
+transports_list = []
+for element in osm_data['elements']:
+    tags = element.get('tags', {})
+    if element['type'] == 'node':
+        lat, lon = element['lat'], element['lon']
+    elif 'center' in element:
+        lat, lon = element['center']['lat'], element['center']['lon']
+    else:
+        continue
+    categorie = 'Autre'
+    if 'bus' in tags.get('highway', '') or tags.get('public_transport') == 'stop_position':
+        categorie = 'Bus'
+    elif 'subway' in tags.get('railway', '') or 'subway' in tags.get('public_transport', ''):
+        categorie = 'Metro'
+    elif 'station' in tags.get('railway', '') or 'halt' in tags.get('railway', ''):
+        categorie = 'Train'
+    transports_list.append({'categorie': categorie, 'latitude': lat, 'longitude': lon})
+
+transports_df = pd.DataFrame(transports_list)
+transports_gdf = gpd.GeoDataFrame(transports_df, geometry=gpd.points_from_xy(transports_df.longitude, transports_df.latitude), crs="EPSG:4326").to_crs(iris.crs)
+transports_iris = gpd.sjoin(transports_gdf, iris_rennes[['code_iris', 'LIB_IRIS', 'geometry']], how='left', predicate='intersects')
+stats_transports = transports_iris.groupby('code_iris').size().reset_index(name='total_arrets')
+stats_transports = iris_rennes[['code_iris', 'LIB_IRIS']].merge(stats_transports, on='code_iris', how='left')
+stats_transports['total_arrets'] = stats_transports['total_arrets'].fillna(0).astype(int)
+stats_transports = stats_transports.merge(iris_rennes[['code_iris', 'geometry']], on='code_iris', how='left')
+stats_transports = gpd.GeoDataFrame(stats_transports, geometry='geometry', crs=iris_rennes.crs)
+stats_transports = stats_transports.to_crs(epsg=2154)
+stats_transports['area_m2'] = stats_transports.geometry.area
+stats_transports['area_km2'] = stats_transports['area_m2'] / 1000000
+stats_transports['densite_arrets_km2'] = (stats_transports['total_arrets'] / stats_transports['area_km2']).replace([float('inf')], 0).round(1)
+
+print(f"OK - Transport density calculated for {len(stats_transports)} IRIS")
+
+# ============================================================================
+# TOP 146 (ALL IRIS) CALCULATION
+# ============================================================================
+print("\n" + "=" * 80)
+print("TOP 146 IRIS DENSITIES")
+print("-" * 80)
+
+# Top 146 densité commerciale (score_densite)
+top146_commerce = stats_iris.nlargest(146, 'score_densite')[['LIB_IRIS', 'score_densite', 'total_commerces', 'surface_km2']].copy()
+print("TOP 146 commerce density calculated")
+
+# Top 146 densité étudiante
+top146_etudiants = iris_rennes_stats.nlargest(146, 'students_per_km2')[['LIB_IRIS', 'students_per_km2', 'nb_etudiants', 'area_km2']].copy()
+print("TOP 146 student density calculated")
+
+# Top 146 densité transport
+top146_transport = stats_transports.nlargest(146, 'densite_arrets_km2')[['LIB_IRIS', 'densite_arrets_km2', 'total_arrets', 'area_km2']].copy()
+print("TOP 146 transport density calculated")
+
+# Merge all top 146
+merged_146 = top146_commerce.merge(
+    top146_etudiants[['LIB_IRIS', 'students_per_km2', 'nb_etudiants']].rename(columns={'area_km2': 'etudiants_area_km2'}),
+    on='LIB_IRIS',
+    how='outer'
+).merge(
+    top146_transport[['LIB_IRIS', 'densite_arrets_km2', 'total_arrets']].rename(columns={'area_km2': 'transport_area_km2'}),
     on='LIB_IRIS',
     how='outer'
 )
 
-# Remplir les valeurs manquantes
-merged_top10['students_per_m2'] = merged_top10['students_per_m2'].fillna(0)
-merged_top10['score_densite'] = merged_top10['score_densite'].fillna(0)
-merged_top10['nb_etudiants'] = merged_top10['nb_etudiants'].fillna(0).astype(int)
-merged_top10['total_commerces'] = merged_top10['total_commerces'].fillna(0).astype(int)
+# Fill NaN with 0
+merged_146 = merged_146.fillna(0)
 
-print(f"OK - {len(merged_top10)} IRIS dans les top10 combines (commerces + etudiants)")
+print(f"OK - {len(merged_146)} IRIS combines avec les 3 densites")
 
-# Création du graphique scatter
-fig_scatter = px.scatter(
-    merged_top10,
-    x='students_per_m2',
-    y='score_densite',
-    text='LIB_IRIS',
-    hover_data=[
-        'LIB_IRIS', 'students_per_m2', 'score_densite',
-        'nb_etudiants', 'total_commerces'
-    ],
-    size='nb_etudiants',  # Taille des points basée sur le nombre d'étudiants
-    opacity=0.8,
-    color_discrete_sequence=['red'],  # Couleur unique pour tous
-    title="Correlation - Top 10 IRIS commerces vs Top 10 IRIS etudiants - Rennes"
+# ============================================================================
+# 3D SCATTER PLOT
+# ============================================================================
+print("\n" + "=" * 80)
+print("GRAPHIQUE 3D SCATTER : Correlation des trois densites")
+print("-" * 80)
+
+import plotly.graph_objects as go
+
+fig_3d = go.Figure(data=[go.Scatter3d(
+    x=merged_146['students_per_km2'],
+    y=merged_146['score_densite'],
+    z=merged_146['densite_arrets_km2'],
+    mode='markers',
+    marker=dict(
+        size=5,
+        color=merged_146['students_per_km2'],
+        colorscale='Viridis',
+        showscale=True,
+        colorbar=dict(title="Densité étudiante (km²)")
+    ),
+    text=merged_146['LIB_IRIS'],
+    hovertemplate=(
+        '<b>%{text}</b><br>' +
+        'Étudiants/km²: %{x}<br>' +
+        'Commerces/km²: %{y}<br>' +
+        'Transports/km²: %{z}'
+    )
+)])
+
+fig_3d.update_layout(
+    title="Correlation 3D - Densité étudiante, commerciale et transport - Top 146 IRIS Rennes",
+    scene=dict(
+        xaxis=dict(title='Densité étudiante (étudiants/km²)', gridcolor='rgb(255, 255, 255)', zerolinecolor='rgb(255, 255, 255)', showbackground=True, backgroundcolor='rgb(230, 230,230)'),
+        yaxis=dict(title='Densité commerciale (score/km²)', gridcolor='rgb(255, 255, 255)', zerolinecolor='rgb(255, 255, 255)', showbackground=True, backgroundcolor='rgb(230, 230,230)'),
+        zaxis=dict(title='Densité transports (arrêts/km²)', gridcolor='rgb(255, 255, 255)', zerolinecolor='rgb(255, 255, 255)', showbackground=True, backgroundcolor='rgb(230, 230,230)')
+    ),
+    width=800,
+    height=600
 )
 
-fig_scatter.update_layout(
-    xaxis_title="Densité étudiante (étudiants/m²)",
-    yaxis_title="Densité commerciale (score ponderé/km²)",
-    font=dict(size=10),
-    showlegend=False
-)
-
-# Ajustement des labels pour éviter le chevauchement
-fig_scatter.update_traces(textposition="top center")
-
-print("OK - Graphique scatter genere pour les top10")
-fig_scatter.show()
+print("OK - Graphique 3D scatter genere pour top 146")
+fig_3d.show()
