@@ -574,7 +574,7 @@ for element in osm_data['elements']:
     transports_list.append({'categorie': categorie, 'latitude': lat, 'longitude': lon})
 
 transports_df = pd.DataFrame(transports_list)
-transports_gdf = gpd.GeoDataFrame(transports_df, geometry=gpd.points_from_xy(transports_df.longitude, transports_df.latitude), crs="EPSG:4326").to_crs(iris.crs)
+transports_gdf = gpd.GeoDataFrame(transports_df, geometry=gpd.points_from_xy(transports_df.longitude, transports_df.latitude), crs="EPSG:4326").to_crs(iris_rennes.crs)
 transports_iris = gpd.sjoin(transports_gdf, iris_rennes[['code_iris', 'LIB_IRIS', 'geometry']], how='left', predicate='intersects')
 stats_transports = transports_iris.groupby('code_iris').size().reset_index(name='total_arrets')
 stats_transports = iris_rennes[['code_iris', 'LIB_IRIS']].merge(stats_transports, on='code_iris', how='left')
