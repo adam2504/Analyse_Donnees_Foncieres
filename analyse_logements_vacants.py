@@ -14,7 +14,7 @@ def analyse_logements_vacants():
     # --- Chargement des données ---
     df_vac = pd.read_excel(f"{BDD}/insee_rp_hist_1968.xlsx", header=1)
     df_pop = pd.read_excel(f"{BDD}/POPULATION_MUNICIPALE_COMMUNES_FRANCE_lucien.xlsx")
-    df_communes = pd.read_csv(f"{BDD}/communes-france-2025.csv", sep=",")
+    df_communes = pd.read_csv(f"{BDD}/communes-france-2025.csv", sep=",", low_memory=False)
 
     # --- Préparation des données ---
     df_communes_coords = df_communes[[
@@ -32,7 +32,7 @@ def analyse_logements_vacants():
 
     df_pop["codgeo"] = df_pop["codgeo"].astype(str)
     df_vac["code_commune"] = df_vac["code_commune"].astype(str)
-    df_communes_coords["code_insee"] = df_communes_coords["code_insee"].astype(str)
+    df_communes_coords.loc[:, "code_insee"] = df_communes_coords["code_insee"].astype(str)
 
     # Filtrage communes > 100k habitants
     df_pop_100k = df_pop[df_pop["p21_pop"] > 100000]
@@ -55,6 +55,8 @@ def analyse_logements_vacants():
         right_on="code_insee",
         how="left"
     ).dropna(subset=["latitude_centre", "longitude_centre"])
+    
+    print("=== ANALYSE DES LOGEMENTS VACANTS EN FRANCE ===")
 
     # --- Affichage de la carte Plotly ---
     fig = px.scatter_mapbox(
@@ -88,6 +90,12 @@ def analyse_logements_vacants():
     )
     fig_hist.update_traces(texttemplate='%{text:.2f}', textposition='outside')
     fig_hist.show()
-
-    print("Analyse des logements vacants terminée !")
-
+    
+    moy_vacance = df_vac_map["part_log_vacant"].mean()
+    commune_min = top10_low_vac.iloc[0]["nom_commune"]
+    vac_min = top10_low_vac.iloc[0]["part_log_vacant"]
+    print(f"En moyenne, les grandes communes françaises ont un taux de vacance d’environ {moy_vacance:.2f}%.")
+    print(f"La commune avec le **plus faible taux** de logements vacants est {commune_min}, avec seulement {vac_min:.2f}% de vacance.")
+    print("Ces villes sont généralement très dynamiques et recherchées : investir dans ces zones limite les risques de vacance locative.")
+    print("À l’inverse, les points les plus rouges sur la carte indiquent des villes où l’offre dépasse la demande, ce qui peut freiner la rentabilité à court terme.")
+    
