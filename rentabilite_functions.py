@@ -510,5 +510,3 @@ def analyse_complete_rentabilite(
     # Étape 3
     df_rentabilite = calculer_rentabilite()
     visualiser_rentabilite(df_rentabilite)
-    
-    
