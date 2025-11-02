@@ -300,7 +300,7 @@ def visualiser_loyers(df_loyers, output_file="classement_loyers_villes.png"):
     ax.set_yticks(y_pos)
     ax.set_yticklabels(villes, fontsize=11, fontweight='bold')
     ax.set_xlabel('Loyer moyen (€/m²)', fontsize=12, fontweight='bold')
-    ax.set_title('Loyers mensuels moyens par ville\nAppartements ≤ 45m² (2024)', 
+    ax.set_title('Loyers mensuels moyens au m² par ville\nAppartements ≤ 45m² (2024)', 
                  fontsize=16, fontweight='bold', pad=20)
     
     ax.grid(axis='x', alpha=0.3, linestyle='--')
