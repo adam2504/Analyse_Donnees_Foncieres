@@ -5,3 +5,8 @@ geopy
 plotly
 seaborn
 unidecode
+geopandas
+fiona
+osmnx
+nbformat
+openpyxl
