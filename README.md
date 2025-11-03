@@ -2,7 +2,6 @@
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/adam2504/Analyse_Donnees_Foncieres)
 [![Python](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
-[![License](https://img.shields.io/badge/License-MIT-yellow)](LICENSE)
 
 Un projet d'analyse de données immobilières spécialisé dans l'investissement locatif étudiant en France, avec un focus particulier sur la ville de Rennes.
 
@@ -171,10 +170,6 @@ Le projet génère plusieurs types de visualisations :
 - Marché locatif dynamique
 - Bonne accessibilité transports
 - Quartiers commerçants attractifs
-
-## 📝 Licence
-
-Ce projet est sous licence MIT - voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
 ## 👥 Auteurs
 
