@@ -148,20 +148,48 @@ def calcul_densites(iris_gdf, commerces_gdf, etudiants_gdf, transports_gdf):
 # ===========================
 # 6️⃣ GRAPHIQUE 3D
 # ===========================
+
 def plot_3d(merged):
-    fig = go.Figure(data=[go.Scatter3d(
+    # Création du texte du survol
+    merged['hover_text'] = (
+        "<b>IRIS :</b> " + merged['LIB_IRIS'].astype(str) + "<br>" +
+        "Étudiants/km² : " + merged['students_per_km2'].round(1).astype(str) + "<br>" +
+        "Commerces/km² : " + merged['score_densite'].round(1).astype(str) + "<br>" +
+        "Transports/km² : " + merged['densite_arrets_km2'].round(1).astype(str)
+    )
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Scatter3d(
         x=merged['students_per_km2'],
         y=merged['score_densite'],
         z=merged['densite_arrets_km2'],
         mode='markers',
-        marker=dict(size=5,color=merged['students_per_km2'],colorscale='Viridis',showscale=True),
-        text=merged['LIB_IRIS']
-    )])
-    fig.update_layout(title="Densités Étudiants - Commerces - Transports à Rennes",
-                      scene=dict(xaxis_title='Étudiants/km²',
-                                 yaxis_title='Commerces/km²',
-                                 zaxis_title='Transports/km²'))
+        marker=dict(
+            size=5,
+            color=merged['students_per_km2'],
+            colorscale='Viridis',
+            showscale=True
+        ),
+        # ✅ On passe le texte pour le hover
+        text=merged['hover_text'],
+        hoverinfo='text',  # ✅ C’est CET argument qui supprime x,y,z
+    ))
+
+    fig.update_layout(
+        title="Densités Étudiants - Commerces - Transports à Rennes",
+        scene=dict(
+            xaxis_title='Étudiants/km²',
+            yaxis_title='Commerces/km²',
+            zaxis_title='Transports/km²'
+        ),
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+
     fig.show()
+
+
+
 
 # ===========================
 # 7️⃣ PIPELINE COMPLET
