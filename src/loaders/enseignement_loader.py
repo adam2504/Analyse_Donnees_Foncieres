@@ -20,7 +20,7 @@ def load_enseignement_data(url=None):
         url (str, optional): URL to download the CSV file from.
 
     Returns:
-        DataFrame: Raw education establishments data.
+        DataFrame: Raw education establishments data with standardized column names.
     """
     if url is None:
         url = (
@@ -30,6 +30,10 @@ def load_enseignement_data(url=None):
         )
 
     df = pd.read_csv(url, delimiter=';')
+
+    # Standardize column names immediately for consistency
+    df = standardize_education_columns(df)
+
     print(f"Loaded education data: {len(df)} establishments")
     return df
 
@@ -92,7 +96,7 @@ def aggregate_education_france(df, exclude_overseas=True):
     Aggregates education data by department for France-wide statistics.
 
     Args:
-        df (DataFrame): Raw education data.
+        df (DataFrame): Raw education data (already standardized).
         exclude_overseas (bool): Whether to exclude overseas territories.
 
     Returns:
@@ -101,19 +105,15 @@ def aggregate_education_france(df, exclude_overseas=True):
     df_filtered = df if not exclude_overseas else df[~df['département'].str.contains("Étranger", na=False)]
 
     df_aggregated = df_filtered.groupby('département', as_index=False).agg({
-        "nombre total d'étudiants inscrits hors doubles inscriptions université/CPGE": 'sum',
+        "nb_etudiants": 'sum',  # Now using standardized column name
         'dont femmes': 'sum',
-        'dont hommes': 'sum',
-        'objectid': 'first',  # Keep first for merging
-        'reg': 'first'
+        'dont hommes': 'sum'
     })
 
     # Add dep code (2 digits)
     df_aggregated['dep'] = df_aggregated['département'].str[:2].str.strip()
 
-    # Standardize column names for consistency
-    df_aggregated = standardize_education_columns(df_aggregated)
-
+    # Column names are already standardized from load_enseignement_data()
     print(f"Aggregated education data for {len(df_aggregated)} departments")
     return df_aggregated
 
