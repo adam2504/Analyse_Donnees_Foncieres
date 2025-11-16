@@ -7,14 +7,19 @@ Centralized configuration for URLs, paths, timeouts, and default values used acr
 Author: Adam Jouini
 """
 
+import os
+
+# Base directory for project (makes paths relative to project root)
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
 # Data URLs
 IRIS_GEOMETRIES_URL = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/contours-iris-pe.gpkg"
 IRIS_NAMES_URL = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/reference_IRIS_geo2025.xlsx"
 EDUCATION_DATA_URL = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/fr-esr-atlas_regional-effectifs-d-etudiants-inscrits-detail_etablissements.csv"
 
 # Default paths (relative to project root)
-IRIS_GEOMETRIES_LOCAL_PATH = "contours-iris-pe.gpkg"
-CACHE_DIR = "data/cache/"
+IRIS_GEOMETRIES_LOCAL_PATH = os.path.join(BASE_DIR, "data", "contours-iris-pe.gpkg")
+CACHE_DIR = os.path.join(BASE_DIR, "data", "cache", "")
 
 # Coordinate Reference Systems
 CRS_WGS84 = "EPSG:4326"  # WGS84 lat/lon

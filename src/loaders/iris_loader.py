@@ -40,6 +40,7 @@ def load_iris_geometries(url=None, local_path=None):
         print(f"Downloading IRIS geometries from {url}...")
         r = requests.get(url)
         r.raise_for_status()
+        os.makedirs(os.path.dirname(local_path), exist_ok=True)
         with open(local_path, "wb") as f:
             f.write(r.content)
 
