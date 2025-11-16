@@ -72,9 +72,14 @@ def make_fig(iris_rennes_stats, mode="Densité", top_n=10):
 # ============================================================================
 # 3. Création des widgets et affichage
 # ============================================================================
-def afficher_widgets():
+def afficher_widgets(iris_plot=None, df_rennes=None):
     """Crée et affiche les widgets interactifs basés sur l’analyse Rennes."""
-    iris_plot, _ = charger_donnees_analyse()
+    # Si les données ne sont pas passées, on les charge
+    if iris_plot is None or df_rennes is None:
+        print("🔄 Aucun dataset fourni → chargement via analyse complète...")
+        iris_plot, df_rennes = charger_donnees_analyse()
+    else:
+        print("⚡ Données détectées → aucun rechargement effectué.")
 
     print("🧩 Création des widgets interactifs...")
 
