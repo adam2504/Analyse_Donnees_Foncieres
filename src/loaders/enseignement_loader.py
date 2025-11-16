@@ -66,6 +66,27 @@ def filter_education_rennes(df, require_gps=True):
     return df_rennes
 
 
+def standardize_education_columns(df):
+    """
+    Standardize column names for easier use.
+
+    Args:
+        df (DataFrame): Education data
+
+    Returns:
+        DataFrame: Data with standardized column names
+    """
+    # Find the student column dynamically (it contains 'étudiants')
+    student_cols = [col for col in df.columns if 'étudiants' in col.lower()]
+    if student_cols:
+        column_mapping = {student_cols[0]: "nb_etudiants"}
+    else:
+        column_mapping = {}
+
+    df_standardized = df.rename(columns=column_mapping)
+    return df_standardized
+
+
 def aggregate_education_france(df, exclude_overseas=True):
     """
     Aggregates education data by department for France-wide statistics.
@@ -80,7 +101,7 @@ def aggregate_education_france(df, exclude_overseas=True):
     df_filtered = df if not exclude_overseas else df[~df['département'].str.contains("Étranger", na=False)]
 
     df_aggregated = df_filtered.groupby('département', as_index=False).agg({
-        'nombre total d\'étudiants inscrits hors doubles inscriptions université/CPGE': 'sum',
+        "nombre total d'étudiants inscrits hors doubles inscriptions université/CPGE": 'sum',
         'dont femmes': 'sum',
         'dont hommes': 'sum',
         'objectid': 'first',  # Keep first for merging
@@ -89,6 +110,9 @@ def aggregate_education_france(df, exclude_overseas=True):
 
     # Add dep code (2 digits)
     df_aggregated['dep'] = df_aggregated['département'].str[:2].str.strip()
+
+    # Standardize column names for consistency
+    df_aggregated = standardize_education_columns(df_aggregated)
 
     print(f"Aggregated education data for {len(df_aggregated)} departments")
     return df_aggregated
@@ -100,7 +124,8 @@ def load_education_rennes(url=None):
     Load and filter education data for Rennes with GPS coordinates.
     """
     raw_data = load_enseignement_data(url)
-    return filter_education_rennes(raw_data)
+    filtered_data = filter_education_rennes(raw_data)
+    return standardize_education_columns(filtered_data)
 
 
 def load_education_france_aggregated(url=None):

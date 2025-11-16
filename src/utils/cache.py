@@ -16,7 +16,7 @@ from pathlib import Path
 from datetime import datetime, timedelta
 from typing import Union, Optional
 
-from config import CACHE_DIR, CACHE_FORMAT, CACHE_EXPIRY_HOURS
+from ..config import CACHE_DIR, CACHE_FORMAT, CACHE_EXPIRY_HOURS
 
 
 def ensure_cache_dir():

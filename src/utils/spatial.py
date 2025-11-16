@@ -12,7 +12,7 @@ import geopandas as gpd
 from typing import Optional
 import numpy as np
 
-from config import CRS_WGS84, CRS_LAMBERT93, OSM_ADMIN_LEVEL
+from ..config import CRS_WGS84, CRS_LAMBERT93, OSM_ADMIN_LEVEL
 
 
 def reproject_to_french_mainland(gdf: gpd.GeoDataFrame,

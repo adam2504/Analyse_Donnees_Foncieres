@@ -14,8 +14,8 @@ import geopandas as gpd
 import requests
 from fiona import listlayers
 
-from config import IRIS_GEOMETRIES_URL, IRIS_NAMES_URL, IRIS_GEOMETRIES_LOCAL_PATH
-from utils.cache import cached_download_dataframe
+from ..config import IRIS_GEOMETRIES_URL, IRIS_NAMES_URL, IRIS_GEOMETRIES_LOCAL_PATH
+from ..utils.cache import cached_download_dataframe
 
 
 def load_iris_geometries(url=None, local_path=None):
@@ -89,8 +89,33 @@ def load_iris_rennes(url_geometries=None, url_names=None):
     iris_rennes = iris_rennes.merge(iris_names[['code_iris', 'LIB_IRIS', 'LIBCOM']],
                                    on='code_iris', how='left')
 
+    # Standardize column names for consistency
+    iris_rennes = standardize_iris_columns(iris_rennes)
+
     print(f"Prepared {len(iris_rennes)} IRIS polygons for Rennes")
     return iris_rennes
+
+
+def standardize_iris_columns(df):
+    """
+    Standardize column names for easier use.
+
+    Args:
+        df (DataFrame): IRIS data
+
+    Returns:
+        DataFrame: Data with standardized column names
+    """
+    column_mapping = {
+        'nom_commune': 'commune_name',
+        'nom_iris': 'iris_name',
+        'code_insee': 'insee_code',
+        'type_iris': 'iris_type',
+        'cleabs': 'iris_key'
+    }
+
+    df_standardized = df.rename(columns=column_mapping)
+    return df_standardized
 
 
 # Convenience aliases
