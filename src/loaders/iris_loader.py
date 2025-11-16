@@ -14,6 +14,9 @@ import geopandas as gpd
 import requests
 from fiona import listlayers
 
+from config import IRIS_GEOMETRIES_URL, IRIS_NAMES_URL, IRIS_GEOMETRIES_LOCAL_PATH
+from utils.cache import cached_download_dataframe
+
 
 def load_iris_geometries(url=None, local_path=None):
     """
@@ -27,11 +30,12 @@ def load_iris_geometries(url=None, local_path=None):
         GeoDataFrame: IRIS geometries with original attributes.
     """
     if url is None:
-        url = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/contours-iris-pe.gpkg"
-
+        url = IRIS_GEOMETRIES_URL
     if local_path is None:
-        local_path = "contours-iris-pe.gpkg"
+        local_path = IRIS_GEOMETRIES_LOCAL_PATH
 
+    # Use cached download for metadata, but still handle local file
+    # For now, keep file-based caching since GPKG is large
     if not os.path.exists(local_path):
         print(f"Downloading IRIS geometries from {url}...")
         r = requests.get(url)
