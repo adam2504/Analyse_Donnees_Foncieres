@@ -61,19 +61,19 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
 
     # Get top N cities
     if rank_by == 'student_density':
-        title = f'Top {top_n} villes - Densité étudiante'
+        title = f'Top {top_n} villes - Densité étudiante (villes + 100k habitants)'
         ylabel = 'Étudiants/population'
         data = data_df.nlargest(top_n, 'student_density')
         values = data['student_density']
         labels = data['libgeo']
     elif rank_by == 'total_students':
-        title = f'Top {top_n} villes - Nombre d\'étudiants'
+        title = f'Top {top_n} villes - Nombre d\'étudiants (villes + 100k habitants)'
         ylabel = 'Nombre d\'étudiants'
-        data = data_df.nlargest(top_n, 'nombre total d\'étudiants inscrits hors doubles inscriptions université/CPGE')
-        values = data['nombre total d\'étudiants inscrits hors doubles inscriptions université/CPGE']
+        data = data_df.nlargest(top_n, 'nb_etudiants')
+        values = data['nb_etudiants']
         labels = data['libgeo']
     elif rank_by == 'population':
-        title = f'Top {top_n} villes - Population'
+        title = f'Top {top_n} villes - Population (villes + 100k habitants)'
         ylabel = 'Population'
         data = data_df.nlargest(top_n, 'p21_pop')
         values = data['p21_pop']
@@ -81,8 +81,8 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
     else:
         raise ValueError(f"Unknown rank_by option: {rank_by}")
 
-    # Create horizontal bar chart
-    bars = ax.barh(range(len(labels)), values)
+    # Create vertical bar chart
+    bars = ax.bar(range(len(labels)), values)
 
     # Color bars based on density
     if rank_by != 'student_density':
@@ -93,111 +93,45 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
         for bar, color in zip(bars, colors):
             bar.set_color(color)
 
-    ax.set_yticks(range(len(labels)))
-    ax.set_yticklabels(labels)
-    ax.set_xlabel(ylabel)
+    ax.set_xticks(range(len(labels)))
+    ax.set_xticklabels(labels, rotation=45, ha='right')
+    ax.set_xlabel('Villes')
+    ax.set_ylabel(ylabel)
     ax.set_title(title)
 
-    # Add value labels
-    for i, (idx, row) in enumerate(data.iterrows()):
-        if rank_by == 'student_density':
-            ax.text(values.iloc[i] + 0.0001, i, f'{values.iloc[i]:.3f}', va='center')
-        else:
-            ax.text(values.iloc[i] + max(values) * 0.01, i,
-                   f'{values.iloc[i]:,.0f}', va='center')
+    # Add mean and median lines
+    if rank_by == 'student_density':
+        col = 'student_density'
+        fmt = '.3f'
+        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
+        median_label = f'Médiane: {data_df[col].median():{fmt}}'
+    elif rank_by == 'total_students':
+        col = 'nb_etudiants'
+        fmt = ',.0f'
+        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
+        median_label = f'Médiane: {data_df[col].median():{fmt}}'
+    elif rank_by == 'population':
+        col = 'p21_pop'
+        fmt = ',.0f'
+        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
+        median_label = f'Médiane: {data_df[col].median():{fmt}}'
 
-    plt.tight_layout()
-    return fig, ax
-
-
-def create_scatter_map(data_df, figsize=None):
-    """
-    Create a scatter map of student density across France.
-
-    Args:
-        data_df (DataFrame): Geocoded city data
-        figsize (tuple, optional): Figure size
-    """
-    if figsize is None:
-        figsize = (figsize[0] if figsize else DEFAULT_FIG_SIZE[0] * 1.5,
-                  figsize[1] if figsize else DEFAULT_FIG_SIZE[1])
-
-    fig, ax = plt.subplots(figsize=figsize, dpi=DEFAULT_DPI)
-
-    # Filter data with valid coordinates
-    map_data = data_df.dropna(subset=['latitude', 'longitude']).copy()
-
-    # Color points by student density
-    scatter = ax.scatter(
-        map_data['longitude'],
-        map_data['latitude'],
-        c=map_data['student_density'],
-        s=map_data['p21_pop'] / 5000,  # Scale point size by population
-        cmap='YlOrRd',
-        alpha=0.7,
-        edgecolors='black',
-        linewidth=0.5
-    )
-
-    # Add colorbar
-    cbar = plt.colorbar(scatter, ax=ax)
-    cbar.set_label('Densité étudiante', rotation=270, labelpad=15)
-
-    # Formatting
-    ax.set_xlabel('Longitude')
-    ax.set_ylabel('Latitude')
-    ax.set_title('Répartition de la densité étudiante en France')
-    ax.grid(True, alpha=0.3)
-
-    # Add text for major cities
-    major_cities = map_data.nlargest(5, 'student_density')
-    for idx, row in major_cities.iterrows():
-        ax.annotate(row['libgeo'],
-                   (row['longitude'], row['latitude']),
-                   xytext=(5, 5), textcoords='offset points',
-                   fontsize=8, alpha=0.8)
-
-    plt.tight_layout()
-    return fig, ax
-
-
-def create_distribution_histogram(data_df, bins=20, figsize=None):
-    """
-    Create a histogram of student density distribution.
-
-    Args:
-        data_df (DataFrame): City data with student density
-        bins (int): Number of histogram bins
-        figsize (tuple, optional): Figure size
-    """
-    if figsize is None:
-        figsize = DEFAULT_FIG_SIZE
-
-    fig, ax = plt.subplots(figsize=figsize, dpi=DEFAULT_DPI)
-
-    # Create histogram
-    counts, bins, patches = ax.hist(data_df['student_density'], bins=bins,
-                                  alpha=0.7, color='#FF6B6B', edgecolor='black')
-
-    ax.set_xlabel('Densité étudiante')
-    ax.set_ylabel('Nombre de villes')
-    ax.set_title('Distribution de la densité étudiante en France')
-
-    # Add statistics text
-    mean_density = data_df['student_density'].mean()
-    median_density = data_df['student_density'].median()
-
-    ax.axvline(mean_density, color='blue', linestyle='--', alpha=0.8,
-              label=f'Moyenne: {mean_density:.3f}')
-    ax.axvline(median_density, color='green', linestyle=':', alpha=0.8,
-              label=f'Médiane: {median_density:.3f}')
-
+    mean_val = data_df[col].mean()
+    median_val = data_df[col].median()
+    ax.axhline(mean_val, color='blue', linestyle='--', alpha=0.8, label=mean_label)
+    ax.axhline(median_val, color='green', linestyle=':', alpha=0.8, label=median_label)
     ax.legend()
-    ax.grid(True, alpha=0.3)
+    ax.grid(False)
+
+    # Add value labels
+    for i in range(len(values)):
+        if rank_by == 'student_density':
+            ax.text(i, values.iloc[i] + 0.0001, f'{values.iloc[i]:.3f}', va='bottom', ha='center')
+        else:
+            ax.text(i, values.iloc[i] + max(values) * 0.01, f'{values.iloc[i]:,.0f}', va='bottom', ha='center')
 
     plt.tight_layout()
     return fig, ax
-
 
 def create_plotly_scatter_map(data_df):
     """
@@ -213,25 +147,23 @@ def create_plotly_scatter_map(data_df):
     map_data = data_df.dropna(subset=['latitude', 'longitude']).copy()
 
     # Create the scatter map
-    fig = px.scatter_mapbox(
+    fig = px.scatter_map(
         map_data,
-        lat='latitude',
-        lon='longitude',
-        color='student_density',
-        size='p21_pop',
-        hover_name='libgeo',
-        hover_data=['student_density', 'p21_pop', 'nb_etudiants'],
-        color_continuous_scale='YlOrRd',
-        size_max=40,
+        lat="latitude",
+        lon="longitude",
+        hover_name="libgeo",
+        hover_data=[
+            'nb_etudiants',
+            'student_density',
+            'p21_pop'
+        ],
+        size="student_density",
         zoom=5,
-        center={"lat": 46.5, "lon": 2.5},  # Center of France
-        title="Répartition géographique des étudiants en France"
+        height=600
     )
 
-    fig.update_layout(
-        mapbox_style="open-street-map",
-        margin={"r": 0, "t": 50, "l": 0, "b": 0}
-    )
+    fig.update_layout(mapbox_style="open-street-map")
+    fig.update_layout(title="Répartition géographique des étudiants en France")
 
     return fig
 
@@ -256,7 +188,7 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
 
     # Plot type selector
     plot_type = widgets.Dropdown(
-        options=['Bar Chart Rankings', 'Scatter Map', 'Distribution Histogram', 'Interactive Plotly Map'],
+        options=['Bar Chart Rankings', 'Interactive Plotly Map'],
         value='Bar Chart Rankings',
         description='Type de graphique :',
         style={'description_width': 'initial'}
@@ -286,10 +218,6 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
 
         if plot_type == 'Bar Chart Rankings':
             fig, ax = create_ranking_bar_chart(data_df, ranking, top_n)
-        elif plot_type == 'Scatter Map':
-            fig, ax = create_scatter_map(data_df)
-        elif plot_type == 'Distribution Histogram':
-            fig, ax = create_distribution_histogram(data_df)
         elif plot_type == 'Interactive Plotly Map':
             fig = create_plotly_scatter_map(data_df)
             fig.show()
@@ -300,18 +228,41 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
 
         plt.show()
 
-    # Create interactive widgets
-    interactive_plot = interactive(
-        update_plot,
-        plot_type=plot_type,
-        ranking=ranking_type,
-        top_n=top_n_slider
-    )
+    # Create controls container and output
+    controls_container = VBox()
+    plot_output = widgets.Output()
 
-    # Display everything
-    display(VBox([
-        interactive_plot
-    ]))
+    # Update button for manual trigger
+    update_button = widgets.Button(description='Afficher/Mettre à jour')
+
+    def update_plot_manual(clicked):
+        with plot_output:
+            plt.close('all')
+            plot_output.clear_output(True)
+            if plot_type.value == 'Bar Chart Rankings':
+                fig, ax = create_ranking_bar_chart(data_df, ranking_type.value, top_n_slider.value)
+                plt.show()
+            elif plot_type.value == 'Interactive Plotly Map':
+                fig = create_plotly_scatter_map(data_df)
+                fig.show()
+
+    update_button.on_click(update_plot_manual)
+
+    # Function to update controls
+    def update_controls():
+        if plot_type.value == 'Bar Chart Rankings':
+            controls_container.children = [plot_type, ranking_type, top_n_slider, update_button]
+        else:
+            controls_container.children = [plot_type, update_button]
+
+    # Initial controls setup
+    update_controls()
+
+    # Observe changes to plot_type
+    plot_type.observe(lambda change: update_controls(), names='value')
+
+    # Display UI
+    display(VBox([controls_container, plot_output]))
 
     print("✅ Interactive national student analysis widgets ready!")
 
