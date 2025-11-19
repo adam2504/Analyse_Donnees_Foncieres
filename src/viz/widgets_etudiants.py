@@ -80,7 +80,8 @@ def create_interactive_student_plot(stats_gdf, mode="Densité", top_n=10):
         coloraxis_colorbar=dict(title=color_title),
         margin=dict(t=60, l=50, r=50, b=50),
         width=DEFAULT_FIG_SIZE[0] * 50,  # Scale for Plotly
-        height=DEFAULT_FIG_SIZE[1] * 50
+        height=DEFAULT_FIG_SIZE[1] * 50,
+        xaxis_tickangle=45
     )
 
     fig.show()
@@ -123,7 +124,8 @@ def create_interactive_comparison_plot(stats_gdf, metric1="students_per_km2", me
         yaxis2=dict(title=metric2.replace('_', ' ').title(), overlaying='y', side='right'),
         margin=dict(t=80, l=50, r=80, b=50),
         width=DEFAULT_FIG_SIZE[0] * 60,
-        height=DEFAULT_FIG_SIZE[1] * 60
+        height=DEFAULT_FIG_SIZE[1] * 60,
+        xaxis_tickangle=45
     )
 
     fig.show()
@@ -150,7 +152,15 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
     # Extract the stats dataframe for plotting
     stats_gdf = analysis_results['stats']
 
-    # Mode selector
+    # Plot type selector
+    plot_type = widgets.Dropdown(
+        options=['Bar Chart', 'Comparison Dual'],
+        value='Bar Chart',
+        description='Type de graphique :',
+        style={'description_width': 'initial'}
+    )
+
+    # Mode selector for bar chart
     mode_selector = widgets.ToggleButtons(
         options=['Densité', 'Nombre d\'étudiants'],
         description='Afficher :',
@@ -161,7 +171,7 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
 
     # Top N slider
     top_slider = widgets.IntSlider(
-        value=10,
+        value=15,
         min=5,
         max=30,
         step=1,
@@ -170,47 +180,55 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
         style={'description_width': 'initial'}
     )
 
-    # Plot type selector
-    plot_type = widgets.Dropdown(
-        options=['Bar Chart', 'Comparison Dual'],
-        value='Bar Chart',
-        description='Type de graphique :',
-        style={'description_width': 'initial'}
-    )
-
     # Metric selectors for comparison plot
     metric1_selector = widgets.Dropdown(
         options=['students_per_km2', 'nb_etudiants', 'nb_etabs', 'etabs_per_km2'],
-        value='students_per_km2',
+        value='nb_etudiants',
         description='Métrique 1 :',
         style={'description_width': 'initial'}
     )
 
     metric2_selector = widgets.Dropdown(
         options=['students_per_km2', 'nb_etudiants', 'nb_etabs', 'etabs_per_km2'],
-        value='nb_etabs',
+        value='etabs_per_km2',
         description='Métrique 2 :',
         style={'description_width': 'initial'}
     )
 
-    def update_plot(plot_type, mode, top_n, metric1, metric2):
-        if plot_type == 'Bar Chart':
-            create_interactive_student_plot(stats_gdf, mode, top_n)
-        elif plot_type == 'Comparison Dual':
-            create_interactive_comparison_plot(stats_gdf, metric1, metric2, top_n)
+    # Create controls container and output
+    controls_container = widgets.VBox()
+    plot_output = widgets.Output()
 
-    # Create the interactive widget
-    interactive_plot = interactive(
-        update_plot,
-        plot_type=plot_type,
-        mode=mode_selector,
-        top_n=top_slider,
-        metric1=metric1_selector,
-        metric2=metric2_selector
-    )
+    # Update button for manual trigger
+    update_button = widgets.Button(description='Afficher/Mettre à jour')
+
+    def update_plot_manual(clicked):
+        with plot_output:
+            plot_output.clear_output(True)
+            if plot_type.value == 'Bar Chart':
+                create_interactive_student_plot(stats_gdf, mode_selector.value, top_slider.value)
+            elif plot_type.value == 'Comparison Dual':
+                create_interactive_comparison_plot(stats_gdf, metric1_selector.value, metric2_selector.value, top_slider.value)
+
+    update_button.on_click(update_plot_manual)
+
+    # Function to update controls
+    def update_controls():
+        if plot_type.value == 'Bar Chart':
+            controls_container.children = [plot_type, mode_selector, top_slider, update_button]
+        else:  # Comparison Dual
+            controls_container.children = [plot_type, top_slider, metric1_selector, metric2_selector, update_button]
+
+    # Initial controls setup
+    update_controls()
+
+    # Observe changes to plot_type
+    plot_type.observe(lambda change: update_controls(), names='value')
+
+    # Display UI
+    display(widgets.VBox([controls_container, plot_output]))
 
     print("✅ Interactive student widgets ready!")
-    display(interactive_plot)
 
 
 # Convenience function for quick demonstration
