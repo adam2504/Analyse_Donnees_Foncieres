@@ -324,7 +324,8 @@ def create_transport_summary_report(analysis_results):
 
     # 4. Coverage statistics text
     axes[1, 1].axis('off')
-    summary_text = ".1f"".1f"".1f"\n" \
+    summary_text = f"🚏 Arrêts totaux: {summary_df.iloc[0]['total_stops']:,}\n" \
+                   f"🏙️ IRIS total: {summary_df.iloc[0]['total_iris']}\n" \
                    f"🏙️ IRIS avec transports: {summary_df.iloc[0]['iris_with_transports']}\n" \
                    f"📈 Couverture: {summary_df.iloc[0]['coverage_percentage']:.1f}%"
 

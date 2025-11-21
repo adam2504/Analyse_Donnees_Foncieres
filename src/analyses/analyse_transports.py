@@ -20,7 +20,7 @@ import geopandas as gpd
 import numpy as np
 
 from ..config import CRS_LAMBERT93
-from ..utils.spatial import reproject_to_french_mainland, add_area_column
+from ..utils.spatial import reproject_to_french_mainland, add_area_column, spatial_join_within
 
 
 def calculate_transport_density_stats(transports_gdf: gpd.GeoDataFrame,
@@ -38,8 +38,8 @@ def calculate_transport_density_stats(transports_gdf: gpd.GeoDataFrame,
     print("Calculating transport density statistics...")
 
     # Spatial join: assign transports to IRIS
-    transports_with_iris = gpd.sjoin(transports_gdf, iris_gdf[['code_iris', 'LIB_IRIS', 'geometry']],
-                                   how='left', predicate='within')
+    transports_with_iris = spatial_join_within(transports_gdf, iris_gdf[['code_iris', 'LIB_IRIS', 'geometry']],
+                                               keep_right_cols=['code_iris', 'LIB_IRIS'])
 
     # Count total stops per IRIS
     total_stops = transports_with_iris.groupby('code_iris').size().reset_index(name='total_arrets')
@@ -56,7 +56,7 @@ def calculate_transport_density_stats(transports_gdf: gpd.GeoDataFrame,
     stats_df = iris_gdf[['code_iris', 'LIB_IRIS', 'geometry']].merge(
         total_stops, on='code_iris', how='left').fillna({'total_arrets': 0})
 
-    stats_df = stats_df.merge(category_pivot, on='code_iris', how='left')
+    stats_df = stats_df.merge(category_pivot, on='code_iris', how='left').fillna(0)
 
     # Fill missing categories with 0
     transport_categories = ['Bus', 'Métro', 'Train', 'Autre']

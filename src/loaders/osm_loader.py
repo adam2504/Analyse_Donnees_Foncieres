@@ -114,6 +114,11 @@ def load_transport_stops(commune="Rennes", admin_level="8", timeout=120):
 
     elements = parse_osm_elements(osm_data, category_logic=categorize_transport)
 
+    # Rename 'category' to 'categorie' for compatibility with existing code
+    for element in elements:
+        if 'category' in element:
+            element['categorie'] = element.pop('category')
+
     # Create GeoDataFrame
     gdf = gpd.GeoDataFrame(
         elements,
