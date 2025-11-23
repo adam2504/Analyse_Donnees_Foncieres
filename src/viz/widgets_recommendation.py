@@ -16,8 +16,10 @@ import plotly.graph_objects as go
 import pandas as pd
 import geopandas as gpd
 import requests
+import os
 import warnings
 from pathlib import Path
+from fiona import listlayers
 
 warnings.filterwarnings('ignore')
 
@@ -41,7 +43,47 @@ def load_final_recommendation_data():
         commerces_gdf = load_commerce_data()
         print("✅ Using modular commerce data")
     except ImportError:
-        from src.analyse_finale_iris_rennes import recup_commerces
+        # Inline fallback for commerce loading
+        def recup_commerces():
+            overpass_url = "http://overpass-api.de/api/interpreter"
+            query = """
+            [out:json][timeout:90];
+            area["name"="Rennes"]["admin_level"="8"]->.searchArea;
+            (
+              node["amenity"="restaurant"](area.searchArea);
+              node["amenity"="fast_food"](area.searchArea);
+              node["amenity"="bar"](area.searchArea);
+              node["amenity"="pub"](area.searchArea);
+              node["amenity"="cafe"](area.searchArea);
+              node["shop"="supermarket"](area.searchArea);
+              node["shop"="convenience"](area.searchArea);
+              node["shop"="grocery"](area.searchArea);
+            );
+            out center;
+            """
+            r = requests.post(overpass_url, data={"data": query}, timeout=120)
+            osm_data = r.json()
+            commerces_list=[]
+            for e in osm_data['elements']:
+                tags = e.get('tags', {})
+                if e['type']=='node':
+                    lat, lon = e['lat'], e['lon']
+                elif 'center' in e:
+                    lat, lon = e['center']['lat'], e['center']['lon']
+                else:
+                    continue
+                if tags.get('amenity','') in ['restaurant','fast_food']:
+                    cat='Restaurant'
+                elif tags.get('amenity','') in ['bar','pub','cafe']:
+                    cat='Bar/Café'
+                elif tags.get('shop','') in ['supermarket','convenience','grocery']:
+                    cat='Supermarché'
+                else:
+                    cat='Autre'
+                commerces_list.append({'categorie':cat,'lat':lat,'lon':lon})
+            commerces_gdf_local = gpd.GeoDataFrame(commerces_list, geometry=gpd.points_from_xy([c['lon'] for c in commerces_list],[c['lat'] for c in commerces_list]), crs="EPSG:4326")
+            return commerces_gdf_local
+
         commerces_gdf = recup_commerces()
         print("⚠️ Using fallback commerce data")
 
@@ -50,7 +92,24 @@ def load_final_recommendation_data():
         iris_gdf = load_iris_rennes()
         print("✅ Using modular IRIS data")
     except ImportError:
-        from src.analyse_finale_iris_rennes import charger_iris
+        # Inline fallback for iris loading
+        def charger_iris(commune="Rennes"):
+            gpkg_path = "contours-iris-pe.gpkg"
+            url_gpkg = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/contours-iris-pe.gpkg"
+            url_ref = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/reference_IRIS_geo2025.xlsx"
+
+            if not os.path.exists(gpkg_path):
+                r = requests.get(url_gpkg)
+                with open(gpkg_path, "wb") as f:
+                    f.write(r.content)
+
+            layers = listlayers(gpkg_path)
+            iris_start = gpd.read_file(gpkg_path, layer=layers[0])
+            iris_noms = pd.read_excel(url_ref).rename(columns={'CODE_IRIS':'code_iris'})
+            iris_rennes = iris_start[iris_start['nom_commune'].str.contains(commune, case=False, na=False)].copy()
+            iris_rennes = iris_rennes.merge(iris_noms[['code_iris','LIB_IRIS','LIBCOM']], on='code_iris', how='left')
+            return iris_rennes
+
         iris_gdf = charger_iris()
         print("⚠️ Using fallback IRIS data")
 
