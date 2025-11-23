@@ -9,7 +9,7 @@ Author: Adam Jouini
 """
 
 import ipywidgets as widgets
-from ipywidgets import interactive
+from ipywidgets import VBox, interactive
 from IPython.display import display
 import plotly.express as px
 import pandas as pd
@@ -131,9 +131,126 @@ def create_interactive_comparison_plot(stats_gdf, metric1="students_per_km2", me
     fig.show()
 
 
+def create_interactive_student_map(iris_gdf, education_gdf, stats_gdf, color_metric="students_per_km2"):
+    """
+    Create an interactive choropleth map of student concentration.
+
+    Args:
+        iris_gdf (GeoDataFrame): IRIS polygons in WGS84
+        education_gdf (GeoDataFrame): Education establishments
+        stats_gdf (GeoDataFrame): Student analysis statistics
+        color_metric (str): 'students_per_km2' or 'nb_etudiants'
+    """
+
+    colorscale = "YlOrRd"
+
+    # Set appropriate titles and labels based on metric
+    if color_metric == "students_per_km2":
+        color_title = "Étudiants/km²"
+        map_title = "Concentration étudiante par IRIS – Rennes"
+        hover_template = (
+            "<b>%{hovertext}</b><br>" +
+            "Étudiants/km²: %{z:.0f}<br>" +
+            "Nombre d'étudiants: %{customdata[0]:,}<br>" +
+            "Établissements: %{customdata[1]}<br>" +
+            "Superficie: %{customdata[2]:.2f} km²<extra></extra>"
+        )
+    else:
+        color_title = "Nombre d'étudiants"
+        map_title = "Nombre total d'étudiants par IRIS – Rennes"
+        hover_template = (
+            "<b>%{hovertext}</b><br>" +
+            "Nombre d'étudiants: %{z:,}<br>" +
+            "Étudiants/km²: %{customdata[0]:.0f}<br>" +
+            "Établissements: %{customdata[1]}<br>" +
+            "Superficie: %{customdata[2]:.2f} km²<extra></extra>"
+        )
+
+    # Prepare map data
+    iris_for_map = iris_gdf.to_crs("EPSG:4326").merge(
+        stats_gdf[['code_iris', 'nb_etudiants', 'students_per_km2', 'nb_etabs', 'area_km2']],
+        on='code_iris',
+        how='left'
+    ).fillna(0)
+
+    education_for_map = education_gdf.to_crs("EPSG:4326")
+
+    # Join establishments to IRIS for tooltips
+    establishments_with_iris = gpd.sjoin(
+        education_for_map,
+        iris_for_map[['code_iris', 'LIB_IRIS', 'geometry']],
+        how='inner',
+        predicate='within'
+    )
+
+    # Create the choropleth map
+    fig = px.choropleth_mapbox(
+        iris_for_map,
+        geojson=iris_for_map.__geo_interface__,
+        locations=iris_for_map.index,
+        color=color_metric,
+        hover_name='LIB_IRIS',
+        hover_data=['nb_etabs', 'area_km2', 'students_per_km2'],
+        mapbox_style="carto-positron",
+        center={"lat": 48.117, "lon": -1.677},
+        zoom=12,
+        opacity=0.6,
+    )
+
+    # Update color scale and title
+    fig.update_layout(
+        coloraxis=dict(
+            colorscale=colorscale,
+            cmin=iris_for_map[color_metric].min(),
+            cmax=iris_for_map[color_metric].max(),
+            colorbar=dict(title=color_title)
+        )
+    )
+
+    # Add establishment markers
+    fig.add_scattermapbox(
+        lat=education_for_map['lat'],
+        lon=education_for_map['lon'],
+        mode='markers',
+        marker=dict(
+            size=6,
+            color='blue',
+            opacity=0.8
+        ),
+        text=establishments_with_iris.get("libellé de l'établissement", "Établissement"),
+        name='Établissements supérieurs',
+        hovertemplate="<b>%{text}</b><extra></extra>"
+    )
+
+    # Update hover template
+    fig.update_traces(
+        hovertemplate=hover_template,
+        selector=dict(type='choroplethmapbox')
+    )
+
+    # Set overall layout
+    fig.update_layout(
+        title={
+            'text': map_title,
+            'x': 0.5,
+            'xanchor': 'center',
+            'yanchor': 'top'
+        },
+        margin={"r": 0, "t": 50, "l": 0, "b": 0},
+        mapbox=dict(
+            style="carto-positron",
+            center={"lat": 48.117, "lon": -1.677},
+            zoom=12
+        )
+    )
+
+    return fig
+
+
 def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=None):
     """
-    Create and display the interactive student concentration widgets.
+    Create and display the interactive student concentration widgets
+    with both charts and interactive map in one interface.
 
     Args:
         analysis_results (dict, optional): Pre-computed analysis results
@@ -147,20 +264,19 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
     else:
         print("⚡ Using provided datasets.")
 
-    print("🧩 Creating interactive student concentration widgets...")
+    print("🧩 Creating combined interactive student concentration widgets...")
 
     # Extract the stats dataframe for plotting
     stats_gdf = analysis_results['stats']
 
-    # Plot type selector
+    # Controls for charts and map
     plot_type = widgets.Dropdown(
-        options=['Bar Chart', 'Comparison Dual'],
+        options=['Bar Chart', 'Comparison Dual', 'Carte interactive Plotly'],
         value='Bar Chart',
         description='Type de graphique :',
         style={'description_width': 'initial'}
     )
 
-    # Mode selector for bar chart
     mode_selector = widgets.ToggleButtons(
         options=['Densité', 'Nombre d\'étudiants'],
         description='Afficher :',
@@ -169,7 +285,6 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
         style={'description_width': 'initial'}
     )
 
-    # Top N slider
     top_slider = widgets.IntSlider(
         value=15,
         min=5,
@@ -180,7 +295,6 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
         style={'description_width': 'initial'}
     )
 
-    # Metric selectors for comparison plot
     metric1_selector = widgets.Dropdown(
         options=['students_per_km2', 'nb_etudiants', 'nb_etabs', 'etabs_per_km2'],
         value='nb_etudiants',
@@ -195,40 +309,62 @@ def display_student_widgets(analysis_results=None, iris_gdf=None, education_gdf=
         style={'description_width': 'initial'}
     )
 
-    # Create controls container and output
-    controls_container = widgets.VBox()
+    zoom_slider = widgets.IntSlider(
+        value=12,
+        min=10,
+        max=15,
+        step=1,
+        description='Zoom :',
+        continuous_update=False,
+        style={'description_width': 'initial'}
+    )
+
+    # Create controls containers
+    charts_controls = VBox()
+    map_controls = VBox()
     plot_output = widgets.Output()
 
-    # Update button for manual trigger
-    update_button = widgets.Button(description='Afficher/Mettre à jour')
-
-    def update_plot_manual(clicked):
+    def update_plot():
         with plot_output:
             plot_output.clear_output(True)
+
             if plot_type.value == 'Bar Chart':
                 create_interactive_student_plot(stats_gdf, mode_selector.value, top_slider.value)
             elif plot_type.value == 'Comparison Dual':
                 create_interactive_comparison_plot(stats_gdf, metric1_selector.value, metric2_selector.value, top_slider.value)
+            elif plot_type.value == 'Carte interactive Plotly':
+                color_metric = 'students_per_km2' if mode_selector.value == 'Densité' else 'nb_etudiants'
+                fig = create_interactive_student_map(iris_gdf, education_gdf, stats_gdf, color_metric)
+                fig.update_layout(
+                    mapbox=dict(
+                        zoom=zoom_slider.value,
+                        center={"lat": 48.117, "lon": -1.677}
+                    )
+                )
+                fig.show()
 
-    update_button.on_click(update_plot_manual)
+    # Update button for manual trigger
+    update_button = widgets.Button(description='Afficher/Mettre à jour')
+    update_button.on_click(lambda clicked: update_plot())
 
-    # Function to update controls
     def update_controls():
         if plot_type.value == 'Bar Chart':
-            controls_container.children = [plot_type, mode_selector, top_slider, update_button]
-        else:  # Comparison Dual
-            controls_container.children = [plot_type, top_slider, metric1_selector, metric2_selector, update_button]
+            charts_controls.children = [mode_selector, top_slider, update_button]
+            display(VBox([plot_type, charts_controls, plot_output]))
+        elif plot_type.value == 'Comparison Dual':
+            charts_controls.children = [top_slider, metric1_selector, metric2_selector, update_button]
+            display(VBox([plot_type, charts_controls, plot_output]))
+        elif plot_type.value == 'Carte interactive Plotly':
+            map_controls.children = [mode_selector, zoom_slider, update_button]
+            display(VBox([plot_type, map_controls, plot_output]))
 
-    # Initial controls setup
-    update_controls()
-
-    # Observe changes to plot_type
+    # Observe changes
     plot_type.observe(lambda change: update_controls(), names='value')
 
-    # Display UI
-    display(widgets.VBox([controls_container, plot_output]))
+    # Initial display
+    update_controls()
 
-    print("✅ Interactive student widgets ready!")
+    print("✅ Combined interactive student concentration widgets ready!")
 
 
 # Convenience function for quick demonstration
