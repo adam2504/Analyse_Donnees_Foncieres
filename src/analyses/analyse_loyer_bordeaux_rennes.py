@@ -267,17 +267,3 @@ def analyze_rent_evolution_bordeaux_rennes(
 
     # Print analysis
     print_market_analysis()
-
-    results = {
-        'raw_data': df_all,
-        'filtered_data': df_filtered,
-        'grouped_data': df_grouped,
-        'plot': fig,
-        'summary_stats': {
-            'cities_compared': cities,
-            'years_range': f"{df_grouped['Annee'].min()}-{df_grouped['Annee'].max()}",
-            'avg_increase_percent': 9.0  # As noted in analysis
-        }
-    }
-
-    return results
