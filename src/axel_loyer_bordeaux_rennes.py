@@ -5,8 +5,14 @@ import io
 import requests
 import os
 import warnings
+from pathlib import Path
 
 warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
+
+# Get project root directory
+script_dir = Path(__file__).parent  # src
+project_root = script_dir.parent  # project root (since this file is directly in src/)
+data_dir = project_root / "data"
 
 def analyse_loyer_bordeaux_rennes():
     """
@@ -17,14 +23,17 @@ def analyse_loyer_bordeaux_rennes():
 
     url = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/data_loyer_aglo.zip"
     response = requests.get(url)
-    os.makedirs("data_loyer_aglo", exist_ok=True)
-    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
-        z.extractall("data_loyer_aglo")
 
-    if "data_loyer_aglo" in os.listdir("data_loyer_aglo"):
-        folder = os.path.join("data_loyer_aglo", "data_loyer_aglo")
+    # Create folder in project data directory
+    extract_dir = data_dir / "data_loyer_aglo"
+    extract_dir.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(io.BytesIO(response.content)) as z:
+        z.extractall(extract_dir)
+
+    if "data_loyer_aglo" in os.listdir(extract_dir):
+        folder = os.path.join(extract_dir, "data_loyer_aglo")
     else:
-        folder = "data_loyer_aglo"
+        folder = extract_dir
 
     def read_csv_safe(path):
         for enc in ["utf-8", "ISO-8859-1", "cp1252"]:
