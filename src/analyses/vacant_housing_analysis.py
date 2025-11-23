@@ -1,5 +1,5 @@
 """
-Vacants Housing Analysis Module
+Vacant Housing Analysis Module
 ===============================
 
 Business logic for analyzing vacant housing rates across French communes.
@@ -167,8 +167,8 @@ def create_vacancy_histogram(df_vac_map, top_n=20):
         y="part_log_vacant",
         text="part_log_vacant",
         hover_data={"p21_pop": True, "code_postal": True, "annee": True},
-        labels={"part_log_vacant": "Taux logements vacants", "nom_commune": "Commune"},
-        title=f"Top {top_n} communes avec le plus petit taux de logements vacants",
+        labels={"part_log_vacant": "Vacant housing rate", "nom_commune": "Commune"},
+        title=f"Top {top_n} communes with the lowest vacant housing rates",
         color="part_log_vacant",
         color_continuous_scale="Blues",
         height=600
@@ -189,15 +189,15 @@ def print_vacancy_summary(df_vac_map, top_n=20):
         Number for summary display
     """
 
-    moy_vacance = df_vac_map["part_log_vacant"].mean()
+    mean_vacancy = df_vac_map["part_log_vacant"].mean()
     top_low_vac = df_vac_map.sort_values("part_log_vacant", ascending=True).head(top_n)
     commune_min = top_low_vac.iloc[0]["nom_commune"]
     vac_min = top_low_vac.iloc[0]["part_log_vacant"]
 
-    print(f"En moyenne, les grandes communes françaises ont un taux de vacance d'environ {moy_vacance:.2f}%.")
-    print(f"La commune avec le **plus faible taux** de logements vacants est {commune_min}, avec seulement {vac_min:.2f}% de vacance.")
-    print("Ces villes sont généralement très dynamiques et recherchées : investir dans ces zones limite les risques de vacance locative.")
-    print("À l'inverse, les points les plus rouges sur la carte indiquent des villes où l'offre dépasse la demande, ce qui peut freiner la rentabilité à court terme.")
+    print(f"On average, large French communes have a vacancy rate of about {mean_vacancy:.2f}%.")
+    print(f"The commune with the **lowest rate** of vacant housing is {commune_min}, with only {vac_min:.2f}% vacancy.")
+    print("These cities are generally very dynamic and sought after: investing in these areas limits the risks of rental vacancy.")
+    print("Conversely, the reddest points on the map indicate cities where supply exceeds demand, which can hinder short-term profitability.")
 
 
 def analyze_vacant_housing(min_population=100000, top_n=20):
@@ -216,7 +216,7 @@ def analyze_vacant_housing(min_population=100000, top_n=20):
     dict : Analysis results including plots and summary data
     """
 
-    print("=== ANALYSE DES LOGEMENTS VACANTS EN FRANCE ===")
+    print("=== VACANT HOUSING ANALYSIS IN FRANCE ===")
 
     # Load and prepare data
     df_vac, df_pop, df_communes_coords = load_vacant_housing_data()

@@ -1,3 +1,0 @@
-Lien de DVF Géolocalisé : https://www.data.gouv.fr/datasets/demandes-de-valeurs-foncieres-geolocalisees
-Lien des data étude sup : https://www.data.gouv.fr/datasets/effectifs-detudiants-inscrits-dans-les-etablissements-et-les-formations-de-lenseignement-superieur-detail-par-etablissements/?utm_source=chatgpt.com
-Lien data population communales : https://www.data.gouv.fr/datasets/population-municipale-des-communes-france-entiere/?utm_source=chatgpt.com

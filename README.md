@@ -1,190 +1,190 @@
-# Analyse Données Foncières - Investissement Locatif Étudiant
+# Real Estate Data Analysis - Student Rental Investment
 
 [![GitHub](https://img.shields.io/badge/GitHub-Repository-blue)](https://github.com/adam2504/Analyse_Donnees_Foncieres)
 [![Python](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
 
-Un projet d'analyse de données immobilières spécialisé dans l'investissement locatif étudiant en France, avec un focus particulier sur la ville de Rennes.
+A real estate data analysis project specializing in student rental investment in France, with a particular focus on the city of Rennes.
 
-## 🎯 Contexte du Projet
+## 🎯 Project Context
 
-Ce projet répond aux besoins d'une jeune investisseuse (Léa, 24 ans) cherchant à réaliser son premier investissement locatif dans une ville étudiante dynamique. L'objectif est d'identifier les meilleures opportunités d'investissement dans des studios et T1 de ≤45m² avec un budget total de 200 000 €.
+This project addresses the needs of a young investor (Léa, 24 years old) seeking to make her first rental investment in a dynamic university city. The objective is to identify the best investment opportunities in studios and T1 apartments of ≤45m² with a total budget of 200,000 €.
 
-## 📊 Analyses Réalisées
+## 📊 Analyses Conducted
 
-### Vue Nationale (France)
-- **Évolution des prix au m²** : Analyse des tendances immobilières sur 5 ans
-- **Rentabilité brute** : Évaluation de la performance locative par ville
-- **Concentration étudiante** : Cartographie des villes universitaires
-- **Taux de vacance locative** : Anticipation des périodes de faible occupation
+### National View (France)
+- **Square Meter Price Evolution** : Analysis of real estate trends over 5 years
+- **Gross Profitability** : Evaluation of rental performance by city
+- **Student Concentration** : Mapping of university cities
+- **Rental Vacancy Rate** : Anticipation of periods with low occupancy
 
-### Focus Rennes
-- **Rentabilité par quartier** : Comparaison des performances locatives
-- **Densité étudiante** : Cartes interactives de concentration universitaire
-- **Transports en commun** : Analyse de l'accessibilité et attractivité
-- **Quartiers vivants** : Densité de commerces (restaurants, bars, supermarchés)
-- **Analyse 3D intégrée** : Visualisation combinée de tous les critères
+### Rennes Focus
+- **Profitability by District** : Comparison of rental performances
+- **Student Density** : Interactive maps of university concentration
+- **Public Transportation** : Analysis of accessibility and attractiveness
+- **Lively Districts** : Density of businesses (restaurants, bars, supermarkets)
+- **Integrated 3D Analysis** : Combined visualization of all criteria
 
-## 🏗️ Architecture du Projet
+## 🏗️ Project Architecture
 
 ```
 Analyse_Donnees_Foncieres/
-├── src/                          # Scripts d'analyse Python
-│   ├── adam_analyse_*.py         # Analyses de concentration étudiante
-│   ├── lucien_*.py              # Analyses de rentabilité et vacance
-│   ├── valentine_*.py           # Analyses de quartiers vivants
-│   ├── axel_*.py                # Analyses comparatives et fonctions
-│   └── analyse_finale_*.py      # Pipeline d'analyse intégrée
-├── notebooks/                   # Notebooks Jupyter
-│   ├── persona_interactive_notebook.ipynb  # Workflow complet
-│   └── raw_exploratory_notebook.ipynb      # Explorations brutes
-├── data/                        # Données locales (si présentes)
-├── outputs/                     # Résultats et visualisations
-├── requirements.txt             # Dépendances Python
-├── Sources_Donnees.txt          # Description des sources de données
-└── README.md                    # Ce fichier
+├── src/                          # Python analysis scripts
+│   ├── adam_analyse_*.py         # Student concentration analyses
+│   ├── lucien_*.py              # Profitability and vacancy analyses
+│   ├── valentine_*.py           # Lively districts analyses
+│   ├── axel_*.py                # Comparative analyses and functions
+│   └── analyse_finale_*.py      # Integrated analysis pipeline
+├── notebooks/                   # Jupyter notebooks
+│   ├── persona_interactive_notebook.ipynb  # Complete workflow
+│   └── raw_exploratory_notebook.ipynb      # Raw explorations
+├── data/                        # Local data (if present)
+├── outputs/                     # Results and visualizations
+├── requirements.txt             # Python dependencies
+├── Data_Sources.txt          # Data sources description
+└── README.md                    # This file
 ```
 
-## 📦 Installation et Configuration
+## 📦 Installation and Configuration
 
-### Prérequis
+### Prerequisites
 - Python 3.8+
-- pip pour la gestion des packages
+- pip for package management
 
 ### Installation
 ```bash
-# Cloner le repository
+# Clone the repository
 git clone https://github.com/adam2504/Analyse_Donnees_Foncieres.git
 cd Analyse_Donnees_Foncieres
 
-# Installer les dépendances
+# Install dependencies
 pip install -r requirements.txt
 ```
 
-### Dépendances Principales
-- `pandas` - Manipulation de données
-- `geopandas` - Analyse géospatiale
-- `plotly` - Visualisations interactives
-- `matplotlib` / `seaborn` - Graphiques statiques
-- `requests` - Téléchargement de données
-- `osmnx` - Données OpenStreetMap
+### Main Dependencies
+- `pandas` - Data manipulation
+- `geopandas` - Geospatial analysis
+- `plotly` - Interactive visualizations
+- `matplotlib` / `seaborn` - Static charts
+- `requests` - Data downloading
+- `osmnx` - OpenStreetMap data
 
-## 🚀 Utilisation
+## 🚀 Usage
 
-### Workflow Complet (Persona Léa)
-Le notebook principal `notebooks/persona_interactive_notebook.ipynb` exécute toutes les analyses :
+### Complete Workflow (Léa Persona)
+The main notebook `notebooks/persona_interactive_notebook.ipynb` runs all analyses:
 
 ```python
-# Exemple d'utilisation d'une analyse spécifique
+# Example usage of a specific analysis
 from src.adam_analyse_concentration_etudiante_carte_rennes import analyse_concentration_rennes
 
-# Générer la carte interactive de concentration étudiante
+# Generate the interactive map of student concentration
 fig, iris_plot, df_rennes = analyse_concentration_rennes()
 fig.show()
 ```
 
-### Analyses Individuelles
+### Individual Analyses
 
-#### 1. Rentabilité Nationale
+#### 1. National Profitability
 ```python
 from src.axel_valentine_rentabilite_functions import analyse_complete_rentabilite
 resultats = analyse_complete_rentabilite()
 ```
 
-#### 2. Densité Étudiante France
+#### 2. Student Density France
 ```python
 from src.adam_analyse_etudiante import analyse_densite_etudiante
 df_resultat = analyse_densite_etudiante()
 ```
 
-#### 3. Logements Vacants
+#### 3. Vacant Housing
 ```python
 from src.lucien_analyse_logements_vacants import analyse_logements_vacants
 analyse_logements_vacants()
 ```
 
-#### 4. Comparaison Rennes/Bordeaux
+#### 4. Rennes/Bordeaux Comparison
 ```python
 from src.axel_loyer_bordeaux_rennes import analyse_loyer_bordeaux_rennes
 analyse_loyer_bordeaux_rennes()
 ```
 
-#### 5. Rentabilité par Quartier Rennes
+#### 5. Profitability by Rennes District
 ```python
 from src.lucien_rentabilité_quartiers_rennes import analyse_rentabilite_quartiers_rennes
 analyse_rentabilite_quartiers_rennes()
 ```
 
-#### 6. Concentration Étudiante Rennes
+#### 6. Student Concentration Rennes
 ```python
 from src.adam_analyse_concentration_etudiante_carte_rennes import analyse_concentration_rennes
 fig, iris_plot, df_rennes = analyse_concentration_rennes()
 ```
 
-#### 7. Transports Rennes
+#### 7. Rennes Transportation
 ```python
 from src.adam_analyse_concentration_transports_rennes import analyse_transports_rennes
 fig1, fig2, stats_iris = analyse_transports_rennes()
 ```
 
-#### 8. Commerces Rennes
+#### 8. Rennes Businesses
 ```python
 from src.valentine_analyse_quartiers_vivants import analyse_commerces_rennes
 fig1, fig2, stats_iris = analyse_commerces_rennes()
 ```
 
-#### 9. Analyse Intégrée 3D
+#### 9. Integrated 3D Analysis
 ```python
 from src.analyse_finale_iris_rennes import pipeline_3d
 merged_data = pipeline_3d()
 ```
 
-## 📊 Sources de Données
+## 📊 Data Sources
 
-- **DVF (Demandes de Valeurs Foncières)** : Transactions immobilières géolocalisées
-- **Data Éducation Supérieure** : Effectifs étudiants par établissement
-- **Population Communale** : Données démographiques INSEE
-- **OpenStreetMap** : Données géographiques via Overpass API
-- **Contours IRIS** : Découpage territorial INSEE
+- **DVF (Demands for Land Values)** : Geolocationed real estate transactions
+- **Higher Education Data** : Number of students per institution
+- **Municipal Population** : INSEE demographic data
+- **OpenStreetMap** : Geographic data via Overpass API
+- **IRIS Contours** : INSEE territorial subdivision
 
-Toutes les sources sont documentées dans `Sources_Donnees.txt`.
+All sources are documented in `Data_Sources.txt`.
 
-## 🎨 Visualisations
+## 🎨 Visualizations
 
-Le projet génère plusieurs types de visualisations :
+The project generates several types of visualizations:
 
-- **Cartes interactives** : Concentration étudiante et commerces (Plotly)
-- **Graphiques 3D** : Analyse intégrée multi-critères
-- **Barplots** : Rentabilité par quartier
-- **Cartes choroplèthes** : Densités par IRIS
-- **Tableaux de bord** : Widgets interactifs pour exploration
+- **Interactive Maps** : Student concentration and businesses (Plotly)
+- **3D Charts** : Integrated multi-criteria analysis
+- **Barplots** : Profitability by district
+- **Choropleth Maps** : Densities by IRIS
+- **Dashboards** : Interactive widgets for exploration
 
-## 📈 Résultats Clés
+## 📈 Key Results
 
-### Recommandations d'Investissement
-- **Budget cible** : 160 000 - 180 000 € d'achat
-- **Rentabilité visée** : ≥ 2,5 % brut
-- **Focus** : Studios/T1 ≤45m² dans zones étudiantes denses
+### Investment Recommendations
+- **Target Budget** : 160,000 - 180,000 € purchase
+- **Targeted Profitability** : ≥ 2.5% gross
+- **Focus** : Studios/T1 ≤45m² in dense student areas
 
-### Points Forts Rennes
-- Concentration étudiante importante
-- Marché locatif dynamique
-- Bonne accessibilité transports
-- Quartiers commerçants attractifs
+### Rennes Strengths
+- Significant student concentration
+- Dynamic rental market
+- Good transportation accessibility
+- Attractive commercial districts
 
-## 👥 Auteurs
+## 👥 Authors
 
-- **Adam JOUINI** - Analyses de concentration étudiante
-- **Lucien RIVAT** - Analyses de rentabilité et vacance locative
-- **Valentine MELLONE** - Analyses de quartiers vivants
-- **Axel THOUMYRE** - Analyses comparatives et fonctions utilitaires
+- **Adam JOUINI** - Student concentration analyses
+- **Lucien RIVAT** - Profitability and rental vacancy analyses
+- **Valentine MELLONE** - Lively districts analyses
+- **Axel THOUMYRE** - Comparative analyses and utility functions
 
-## 🙏 Remerciements
+## 🙏 Acknowledgments
 
-- Données ouvertes du gouvernement français (data.gouv.fr)
-- Communauté OpenStreetMap
-- INSEE pour les données territoriales
-- Hugging Face pour l'hébergement des datasets
+- French government open data (data.gouv.fr)
+- OpenStreetMap community
+- INSEE for territorial data
+- Hugging Face for dataset hosting
 
 ---
 
-**Note** : Ce projet est développé dans le cadre d'un projet académique d'analyse de données. Les analyses fournissent des insights mais ne constituent pas des conseils financiers personnalisés.
+**Note** : This project was developed as part of an academic data analysis project. The analyses provide insights but do not constitute personalized financial advice.

@@ -9,12 +9,13 @@ Author: Adam Jouini
 """
 
 import pandas as pd
+from typing import Dict, Optional, List
 
 from ..loaders import load_french_cities_100k
 from ..loaders.geocoding_loader import geocode_french_cities
 
 
-def calculate_national_student_metrics(df):
+def calculate_national_student_metrics(df: pd.DataFrame) -> Dict:
     """
     Calculate various student density metrics for national analysis.
 
@@ -47,7 +48,7 @@ def calculate_national_student_metrics(df):
     return metrics
 
 
-def analyze_student_distribution(df):
+def analyze_student_distribution(df: pd.DataFrame) -> Dict:
     """
     Analyze the distribution of student concentrations.
 
@@ -76,7 +77,7 @@ def analyze_student_distribution(df):
     return distribution
 
 
-def classify_cities_by_density(df, thresholds=None):
+def classify_cities_by_density(df: pd.DataFrame, thresholds: Optional[List[float]] = None) -> pd.DataFrame:
     """
     Classify cities by their student density levels.
 
@@ -111,7 +112,7 @@ def classify_cities_by_density(df, thresholds=None):
     return df_classified
 
 
-def generate_city_rankings(df, column='student_density', top_n=20, ascending=False):
+def generate_city_rankings(df: pd.DataFrame, column: str = 'student_density', top_n: int = 20, ascending: bool = False) -> pd.DataFrame:
     """
     Generate rankings of cities by a specific metric.
 
@@ -136,7 +137,7 @@ def generate_city_rankings(df, column='student_density', top_n=20, ascending=Fal
 
 
 # Main analysis function (national pipeline)
-def analyze_national_student_density(data_df=None, add_coordinates=True):
+def analyze_national_student_density(data_df: Optional[pd.DataFrame] = None, add_coordinates: bool = True) -> Dict:
     """
     Complete national student density analysis pipeline.
 

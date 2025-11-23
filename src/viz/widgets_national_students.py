@@ -19,7 +19,7 @@ import numpy as np
 
 # Import our modular components
 from src.loaders import load_french_cities_100k
-from src.analyses.analyse_etudiants_national import analyze_national_student_density
+from src.analyses.national_student_analysis import analyze_national_student_density
 
 # Import plotting defaults
 from src.config import DEFAULT_FIG_SIZE, DEFAULT_DPI
@@ -61,19 +61,19 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
 
     # Get top N cities
     if rank_by == 'student_density':
-        title = f'Top {top_n} villes - Densité étudiante (villes + 100k habitants)'
-        ylabel = 'Étudiants/population'
+        title = f'Top {top_n} cities - Student density (cities + 100k inhabitants)'
+        ylabel = 'Students/population'
         data = data_df.nlargest(top_n, 'student_density')
         values = data['student_density']
         labels = data['libgeo']
     elif rank_by == 'total_students':
-        title = f'Top {top_n} villes - Nombre d\'étudiants (villes + 100k habitants)'
-        ylabel = 'Nombre d\'étudiants'
+        title = f'Top {top_n} cities - Number of students (cities + 100k inhabitants)'
+        ylabel = 'Number of students'
         data = data_df.nlargest(top_n, 'nb_etudiants')
         values = data['nb_etudiants']
         labels = data['libgeo']
     elif rank_by == 'population':
-        title = f'Top {top_n} villes - Population (villes + 100k habitants)'
+        title = f'Top {top_n} cities - Population (cities + 100k inhabitants)'
         ylabel = 'Population'
         data = data_df.nlargest(top_n, 'p21_pop')
         values = data['p21_pop']
@@ -95,7 +95,7 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
 
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels, rotation=45, ha='right')
-    ax.set_xlabel('Villes')
+    ax.set_xlabel('Cities')
     ax.set_ylabel(ylabel)
     ax.set_title(title)
 
@@ -103,18 +103,18 @@ def create_ranking_bar_chart(data_df, rank_by='student_density', top_n=15, figsi
     if rank_by == 'student_density':
         col = 'student_density'
         fmt = '.3f'
-        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
-        median_label = f'Médiane: {data_df[col].median():{fmt}}'
+        mean_label = f'Mean: {data_df[col].mean():{fmt}}'
+        median_label = f'Median: {data_df[col].median():{fmt}}'
     elif rank_by == 'total_students':
         col = 'nb_etudiants'
         fmt = ',.0f'
-        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
-        median_label = f'Médiane: {data_df[col].median():{fmt}}'
+        mean_label = f'Mean: {data_df[col].mean():{fmt}}'
+        median_label = f'Median: {data_df[col].median():{fmt}}'
     elif rank_by == 'population':
         col = 'p21_pop'
         fmt = ',.0f'
-        mean_label = f'Moyenne: {data_df[col].mean():{fmt}}'
-        median_label = f'Médiane: {data_df[col].median():{fmt}}'
+        mean_label = f'Mean: {data_df[col].mean():{fmt}}'
+        median_label = f'Median: {data_df[col].median():{fmt}}'
 
     mean_val = data_df[col].mean()
     median_val = data_df[col].median()
@@ -163,7 +163,7 @@ def create_plotly_scatter_map(data_df):
     )
 
     fig.update_layout(mapbox_style="open-street-map")
-    fig.update_layout(title="Répartition géographique des étudiants en France")
+    fig.update_layout(title="Geographical distribution of students in France")
 
     return fig
 
@@ -190,7 +190,7 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
     plot_type = widgets.Dropdown(
         options=['Bar Chart Rankings', 'Interactive Plotly Map'],
         value='Bar Chart Rankings',
-        description='Type de graphique :',
+        description='Chart type:',
         style={'description_width': 'initial'}
     )
 
@@ -198,7 +198,7 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
     ranking_type = widgets.Dropdown(
         options=['student_density', 'total_students', 'population'],
         value='student_density',
-        description='Classement par :',
+        description='Rank by:',
         style={'description_width': 'initial'}
     )
 
@@ -208,7 +208,7 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
         min=5,
         max=30,
         step=1,
-        description='Top N villes :',
+        description='Top N cities:',
         continuous_update=False,
         style={'description_width': 'initial'}
     )
@@ -233,7 +233,7 @@ def display_national_student_widgets(analysis_results=None, data_df=None):
     plot_output = widgets.Output()
 
     # Update button for manual trigger
-    update_button = widgets.Button(description='Afficher/Mettre à jour')
+    update_button = widgets.Button(description='Display/Update')
 
     def update_plot_manual(clicked):
         with plot_output:
@@ -272,7 +272,7 @@ def demo_national_student_analysis():
     """
     Demo function to quickly show the national student analysis with widgets.
     """
-    print("🇫🇷 National Student Analysis Demo")
+    print("🇫🇷 National Student Analysis Demo")  # Keep flag for France, but translate text?
     print("This will load comprehensive French student data and create interactive visualizations.")
 
     try:
@@ -335,9 +335,9 @@ def compare_student_vs_population(data_df, figsize=None):
     ax.plot(data_df['p21_pop'], p(data_df['p21_pop']), "r--", alpha=0.8)
 
     # Format axis
-    ax.set_xlabel('Population de la ville')
-    ax.set_ylabel('Densité étudiante')
-    ax.set_title('Corrélation Population vs Densité Étudiante')
+    ax.set_xlabel('City population')
+    ax.set_ylabel('Student density')
+    ax.set_title('Population vs Student Density Correlation')
 
     # Format x-axis with commas
     ax.xaxis.set_major_formatter(plt.FuncFormatter(lambda x, p: format(int(x), ',')))
@@ -347,7 +347,7 @@ def compare_student_vs_population(data_df, figsize=None):
 
     # Add colorbar
     cbar = plt.colorbar(scatter, ax=ax)
-    cbar.set_label('Intensité\ncouleur =\ndensité')
+    cbar.set_label('Color intensity =\ndensity')
 
     # Add city labels for outliers
     outliers = data_df.nlargest(3, 'student_density')
