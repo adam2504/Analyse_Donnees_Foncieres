@@ -310,9 +310,9 @@ def create_profitability_plot(df_merged, output_file=None):
         hue="Catégorie_surface_environ",
         palette="Set2"
     )
-    plt.ylabel("Rentabilité brute (%)")
-    plt.xlabel("Quartier")
-    plt.title("Rentabilité brute par Quartier et surface à Rennes")
+    plt.ylabel("Gross profitability (%)")
+    plt.xlabel("Neighborhood")
+    plt.title("Gross profitability by district and surface area in Rennes")
     plt.xticks(rotation=45, ha="right")
     plt.legend(title="Surface (m²)")
     plt.tight_layout()
@@ -359,11 +359,11 @@ def print_profitability_summary(top, bottom, mean_profit):
     mean_profit : float
         Mean profitability percentage
     """
-    print(f"À Rennes, la rentabilité moyenne des appartements est d'environ {mean_profit:.2f}%.")
-    print(f"Les quartiers les plus rentables sont : {', '.join(top['Quartier'].unique())}.")
-    print(f"Les quartiers les moins rentables sont : {', '.join(bottom['Quartier'].unique())}.")
-    print("Les logements autour de 30m² sont souvent plus rentables (petits T1/T2 étudiants).")
-    print("Les surfaces de 45m² sont plus stables à long terme, avec une vacance locative moindre.")
+    print(f"In Rennes, the average apartment profitability is about {mean_profit:.2f}%.")
+    print(f"The most profitable districts are: {', '.join(top['Quartier'].unique())}.")
+    print(f"The least profitable districts are: {', '.join(bottom['Quartier'].unique())}.")
+    print("Apartments around 30m² are often more profitable (small T1/T2 student apartments).")
+    print("45m² surfaces are more stable in the long term, with lower rental vacancy.")
 
 
 def analyze_rennes_district_profitability(
@@ -388,7 +388,7 @@ def analyze_rennes_district_profitability(
     dict : Analysis results including processed data and plot
     """
 
-    print("=== ANALYSE DE LA RENTABILITÉ DES QUARTIERS À RENNES ===")
+    print("=== ANALYSIS OF THE PROFITABILITY OF NEIGHBORHOODS IN RENNES ===")
 
     # Set up data source
     BDD = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main"
@@ -446,4 +446,3 @@ def analyze_rennes_district_profitability(
             'mean_profitability': avg_profitability
         }
     }
-
