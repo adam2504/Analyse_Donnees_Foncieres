@@ -68,8 +68,8 @@ def create_top_transport_density_plot(stats_gdf, top_n=10, figsize=None):
     # Customize plot
     ax.set_yticks(range(len(top_data)))
     ax.set_yticklabels(top_data['LIB_IRIS'])
-    ax.set_xlabel('Densité d\'arrêts (par km²)')
-    ax.set_title(f'Top {top_n} IRIS - Densité transports en commun à Rennes')
+    ax.set_xlabel('Stop density (per km²)')
+    ax.set_title(f'Top {top_n} IRIS - Public transport density in Rennes')
 
     # Add value labels on bars
     for i, (idx, row) in enumerate(top_data.iterrows()):
@@ -114,8 +114,8 @@ def create_transport_type_comparison_plot(stats_gdf, top_n=10, figsize=None):
     # Customize plot
     ax.set_xticks(x)
     ax.set_xticklabels(top_data['LIB_IRIS'], rotation=45, ha='right')
-    ax.set_ylabel('Nombre d\'arrêts')
-    ax.set_title(f'Répartition par type de transport - Top {top_n} IRIS')
+    ax.set_ylabel('Number of stops')
+    ax.set_title(f'Distribution by transport type - Top {top_n} IRIS')
     ax.legend()
 
     # Add value labels on bars
