@@ -15,13 +15,14 @@ import requests
 import zipfile
 import io
 from pathlib import Path
+from typing import List, Tuple, Optional, Dict, Any, Union
 
 # Get project root directory
 script_dir = Path(__file__).parent  # src/analyses
 project_root = script_dir.parent.parent  # project root
 
 
-def load_district_price_data(url):
+def load_district_price_data(url: str) -> pd.DataFrame:
     """
     Load Rennes districts price data.
 
@@ -46,7 +47,7 @@ def load_district_price_data(url):
     return df
 
 
-def load_rent_data(url_base, filename):
+def load_rent_data(url_base: str, filename: str) -> pd.DataFrame:
     """
     Load and extract rent data from zip file.
 
@@ -70,7 +71,7 @@ def load_rent_data(url_base, filename):
     return df
 
 
-def filter_student_apartments(df):
+def filter_student_apartments(df: pd.DataFrame) -> pd.DataFrame:
     """
     Filter for student apartments (new apartments ≤45m²).
 
@@ -90,7 +91,7 @@ def filter_student_apartments(df):
     ]
 
 
-def filter_clean_rent_data(df_rent):
+def filter_clean_rent_data(df_rent: pd.DataFrame) -> pd.DataFrame:
     """
     Filter and clean rent data.
 
@@ -118,7 +119,7 @@ def filter_clean_rent_data(df_rent):
     return df_filtered
 
 
-def map_zones_to_quartiers(df_rent):
+def map_zones_to_quartiers(df_rent: pd.DataFrame) -> pd.DataFrame:
     """
     Map zone codes to quartier names.
 
@@ -150,7 +151,7 @@ def map_zones_to_quartiers(df_rent):
     return df_rent
 
 
-def rename_columns(df_price):
+def rename_columns(df_price: pd.DataFrame) -> pd.DataFrame:
     """
     Rename columns for consistency between datasets.
 
@@ -171,7 +172,7 @@ def rename_columns(df_price):
     })
 
 
-def create_surface_categories(ranges=None):
+def create_surface_categories(ranges: Optional[List[Tuple[int, int, str]]] = None) -> List[Tuple[int, int, str]]:
     """
     Create surface category ranges for analysis.
 
@@ -192,7 +193,7 @@ def create_surface_categories(ranges=None):
     return ranges
 
 
-def calculate_median_by_category(df_rent, surface_ranges, numeric_columns):
+def calculate_median_by_category(df_rent: pd.DataFrame, surface_ranges: List[Tuple[int, int, str]], numeric_columns: List[str]) -> pd.DataFrame:
     """
     Calculate median rents by quartier and surface category.
 
@@ -244,7 +245,7 @@ def calculate_median_by_category(df_rent, surface_ranges, numeric_columns):
     return pd.concat(dfs, ignore_index=True)
 
 
-def merge_price_and_rent_data(df_grouped, df_price):
+def merge_price_and_rent_data(df_grouped: pd.DataFrame, df_price: pd.DataFrame) -> pd.DataFrame:
     """
     Merge price and rent data for profitability calculation.
 
@@ -270,7 +271,7 @@ def merge_price_and_rent_data(df_grouped, df_price):
     )
 
 
-def calculate_profitability(df_merged):
+def calculate_profitability(df_merged: pd.DataFrame) -> pd.DataFrame:
     """
     Calculate gross rental profitability percentages.
 
@@ -287,7 +288,7 @@ def calculate_profitability(df_merged):
     return df_merged.sort_values(by=["rentabilite_brute_%"], ascending=False)
 
 
-def create_profitability_plot(df_merged, output_file=None):
+def create_profitability_plot(df_merged: pd.DataFrame, output_file: Optional[str] = None) -> plt.Figure:
     """
     Create seaborn bar plot of profitability by quartier and surface category.
 
@@ -323,7 +324,7 @@ def create_profitability_plot(df_merged, output_file=None):
     return plt.gcf()
 
 
-def get_top_performers(df_merged, n=3):
+def get_top_performers(df_merged: pd.DataFrame, n: int = 3) -> Tuple[pd.DataFrame, pd.DataFrame, float]:
     """
     Get top and bottom performers by profitability.
 

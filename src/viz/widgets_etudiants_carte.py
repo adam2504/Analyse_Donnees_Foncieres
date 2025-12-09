@@ -12,8 +12,10 @@ import ipywidgets as widgets
 from ipywidgets import interactive, VBox, HBox
 from IPython.display import display
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import geopandas as gpd
+from typing import Tuple, Optional, Dict, Any, Union
 
 # Import our modular analysis functions
 from src.loaders import load_iris_rennes, load_education_rennes
@@ -23,7 +25,7 @@ from src.analyses.analyse_etudiants import analyze_student_concentration
 from src.config import DEFAULT_DPI
 
 
-def load_map_analysis_data():
+def load_map_analysis_data() -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, Dict[str, Any], gpd.GeoDataFrame]:
     """
     Load and prepare analysis data specifically for map visualization.
 
@@ -55,8 +57,8 @@ def load_map_analysis_data():
     return iris_wgs84, education_gdf, results, establishments_with_iris
 
 
-def create_interactive_student_map(iris_gdf, education_gdf, establishments_with_iris,
-                                 color_metric="students_per_km2"):
+def create_interactive_student_map(iris_gdf: gpd.GeoDataFrame, education_gdf: gpd.GeoDataFrame, establishments_with_iris: gpd.GeoDataFrame,
+                                 color_metric: str = "students_per_km2") -> go.Figure:
     """
     Create an interactive choropleth map of student concentration.
 
@@ -155,7 +157,7 @@ def create_interactive_student_map(iris_gdf, education_gdf, establishments_with_
     return fig
 
 
-def create_interactive_student_plot(stats_gdf, mode="Densité", top_n=10):
+def create_interactive_student_plot(stats_gdf: gpd.GeoDataFrame, mode: str = "Densité", top_n: int = 10) -> None:
     """
     Create an interactive Plotly bar chart for student concentration data.
 
@@ -201,7 +203,7 @@ def create_interactive_student_plot(stats_gdf, mode="Densité", top_n=10):
     fig.show()
 
 
-def create_interactive_comparison_plot(stats_gdf, metric1="students_per_km2", metric2="nb_etabs", top_n=15):
+def create_interactive_comparison_plot(stats_gdf: gpd.GeoDataFrame, metric1: str = "students_per_km2", metric2: str = "nb_etabs", top_n: int = 15) -> None:
     """
     Create a dual-axis plot comparing two metrics.
 
@@ -245,7 +247,7 @@ def create_interactive_comparison_plot(stats_gdf, metric1="students_per_km2", me
     fig.show()
 
 
-def display_student_widgets_combined(analysis_results=None, iris_gdf=None, education_gdf=None):
+def display_student_widgets_combined(analysis_results: Optional[Dict[str, Any]] = None, iris_gdf: Optional[gpd.GeoDataFrame] = None, education_gdf: Optional[gpd.GeoDataFrame] = None) -> None:
     """
     Create and display combined interactive student concentration widgets
     with both charts and interactive map in one interface.
@@ -406,7 +408,7 @@ def display_student_widgets_combined(analysis_results=None, iris_gdf=None, educa
 
 
 # Convenience function for quick demonstration
-def demo_student_concentration_map():
+def demo_student_concentration_map() -> Optional[None]:
     """
     Demo function to quickly show the student concentration interactive map.
     """
@@ -415,7 +417,7 @@ def demo_student_concentration_map():
 
     try:
         # Load and display
-        display_student_map_widgets()
+        display_student_widgets_combined()
 
         print("\n🎯 Map Features:")
         print("- Toggle between density and total student count")
@@ -429,7 +431,7 @@ def demo_student_concentration_map():
 
 
 # Utility function to save map as HTML
-def export_student_map_html(analysis_results, filename="student_concentration_map.html"):
+def export_student_map_html(analysis_results: Dict[str, Any], filename: str = "student_concentration_map.html") -> Optional[str]:
     """
     Export the student concentration map as an interactive HTML file.
 

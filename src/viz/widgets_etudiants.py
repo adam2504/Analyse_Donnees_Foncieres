@@ -12,8 +12,10 @@ import ipywidgets as widgets
 from ipywidgets import VBox, interactive
 from IPython.display import display
 import plotly.express as px
+import plotly.graph_objects as go
 import pandas as pd
 import geopandas as gpd
+from typing import Tuple, Optional, Dict, Any
 
 # Import our modular analysis functions
 from src.loaders import load_iris_rennes, load_education_rennes
@@ -23,7 +25,7 @@ from src.analyses.analyse_etudiants import analyze_student_concentration
 from src.config import DEFAULT_FIG_SIZE
 
 
-def load_analysis_data():
+def load_analysis_data() -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, Dict[str, Any]]:
     """
     Load and prepare analysis data for student concentration widgets.
 
@@ -41,7 +43,7 @@ def load_analysis_data():
     return iris_gdf, education_gdf, results
 
 
-def create_interactive_student_plot(stats_gdf, mode="Density", top_n=10):
+def create_interactive_student_plot(stats_gdf: gpd.GeoDataFrame, mode: str = "Density", top_n: int = 10) -> None:
     """
     Create an interactive Plotly bar chart for student concentration data.
 
@@ -87,7 +89,7 @@ def create_interactive_student_plot(stats_gdf, mode="Density", top_n=10):
     fig.show()
 
 
-def create_interactive_comparison_plot(stats_gdf, metric1="students_per_km2", metric2="nb_etabs", top_n=15):
+def create_interactive_comparison_plot(stats_gdf: gpd.GeoDataFrame, metric1: str = "students_per_km2", metric2: str = "nb_etabs", top_n: int = 15) -> None:
     """
     Create a dual-axis plot comparing two metrics.
 

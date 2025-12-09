@@ -16,7 +16,7 @@ import requests
 import zipfile
 import glob
 from pathlib import Path
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 
 # Get project root directory
 script_dir = Path(__file__).parent  # src/analyses
@@ -119,7 +119,7 @@ def download_and_extract_dvf(
     return df_clean
 
 
-def calculate_purchase_price_per_city(df_clean, output_file=str(project_root / "data" / "classement_prix_m2_par_ville.csv")):
+def calculate_purchase_price_per_city(df_clean: pd.DataFrame, output_file: str = str(project_root / "data" / "classement_prix_m2_par_ville.csv")) -> pd.DataFrame:
     """Calculate purchase price statistics per city."""
 
     city_stats = df_clean.groupby("Commune").agg({
@@ -145,7 +145,7 @@ def calculate_purchase_price_per_city(df_clean, output_file=str(project_root / "
     return city_stats
 
 
-def visualize_purchase_price(city_stats, df_clean, output_file=str(project_root / "outputs" / "classement_prix_m2_villes.png")):
+def visualize_purchase_price(city_stats: pd.DataFrame, df_clean: pd.DataFrame, output_file: str = str(project_root / "outputs" / "classement_prix_m2_villes.png")) -> None:
     """Create a chart of purchase prices per city."""
 
     chart_stats = city_stats.sort_values('Average price €/m²', ascending=True)

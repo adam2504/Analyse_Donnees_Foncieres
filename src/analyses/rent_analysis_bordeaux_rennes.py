@@ -16,6 +16,7 @@ import requests
 import os
 import warnings
 from pathlib import Path
+from typing import List, Dict, Any, Optional
 
 warnings.filterwarnings("ignore", category=pd.errors.SettingWithCopyWarning)
 
@@ -24,7 +25,7 @@ script_dir = Path(__file__).parent  # src/analyses
 project_root = script_dir.parent.parent  # project root
 
 
-def read_csv_safe(path):
+def read_csv_safe(path: str) -> pd.DataFrame:
     """
     Safely read CSV files with fallback encodings.
 
@@ -46,8 +47,8 @@ def read_csv_safe(path):
 
 
 def download_rent_agglomeration_data(
-    url="https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/data_loyer_aglo.zip"
-):
+    url: str = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/data_loyer_aglo.zip"
+) -> str:
     """
     Download and extract rent data for agglomerations.
 

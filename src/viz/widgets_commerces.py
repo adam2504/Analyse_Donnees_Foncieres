@@ -17,6 +17,7 @@ from IPython.display import display
 import pandas as pd
 import geopandas as gpd
 import numpy as np
+from typing import Tuple, Optional, Dict, Any
 
 # Import our modular analysis functions
 from src.loaders import load_iris_rennes
@@ -27,7 +28,7 @@ from src.analyses.analyse_commerces import analyze_commerce_density
 from src.config import DEFAULT_FIG_SIZE, DEFAULT_DPI
 
 
-def load_commerce_analysis_data():
+def load_commerce_analysis_data() -> Tuple[gpd.GeoDataFrame, gpd.GeoDataFrame, Dict[str, Any]]:
     """
     Load and prepare analysis data for commerce widgets.
 
@@ -45,7 +46,7 @@ def load_commerce_analysis_data():
     return iris_gdf, commerces_gdf, results
 
 
-def create_top_commerce_count_plot(stats_gdf, top_n=10, figsize=None):
+def create_top_commerce_count_plot(stats_gdf: gpd.GeoDataFrame, top_n: int = 10, figsize: Optional[Tuple[float, float]] = None) -> Tuple[plt.Figure, plt.Axes]:
     """
     Create a horizontal bar chart showing top IRIS by commerce count.
 
@@ -82,7 +83,7 @@ def create_top_commerce_count_plot(stats_gdf, top_n=10, figsize=None):
     return fig, ax
 
 
-def create_commerce_type_distribution_plot(stats_gdf, top_n=10, figsize=None):
+def create_commerce_type_distribution_plot(stats_gdf: gpd.GeoDataFrame, top_n: int = 10, figsize: Optional[Tuple[float, float]] = None) -> Tuple[plt.Figure, plt.Axes]:
     """
     Create a grouped bar chart showing commerce types distribution.
 
