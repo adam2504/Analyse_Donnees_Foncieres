@@ -69,8 +69,8 @@ def create_top_commerce_count_plot(stats_gdf, top_n=10, figsize=None):
     # Customize plot
     ax.set_yticks(range(len(top_data)))
     ax.set_yticklabels(top_data['LIB_IRIS'])
-    ax.set_xlabel('Nombre de commerces')
-    ax.set_title(f'Top {top_n} IRIS Rennes - commerces vivants')
+    ax.set_xlabel('Number of businesses')
+    ax.set_title(f'Top {top_n} IRIS Rennes - vibrant businesses')
 
     # Add value labels on bars
     for i, (idx, row) in enumerate(top_data.iterrows()):
@@ -110,13 +110,13 @@ def create_commerce_type_distribution_plot(stats_gdf, top_n=10, figsize=None):
     bars_bar_cafe = ax.bar(x, top_data['Bar/Café'], width,
                           label='Bars/Cafés', color='#4ECDC4')
     bars_super = ax.bar(x + width, top_data['Supermarché'], width,
-                       label='Supermarchés', color='#45B7D1')
+                       label='Supermarkets', color='#45B7D1')
 
     # Customize plot
     ax.set_xticks(x)
     ax.set_xticklabels(top_data['LIB_IRIS'], rotation=45, ha='right')
-    ax.set_ylabel('Nombre de commerces')
-    ax.set_title(f'Composition du Top {top_n} IRIS par type de commerce')
+    ax.set_ylabel('Number of businesses')
+    ax.set_title(f'Composition of the Top {top_n} IRIS by type of business')
     ax.legend()
 
     # Add value labels on bars
@@ -160,8 +160,8 @@ def create_commerce_density_score_plot(stats_gdf, top_n=10, figsize=None):
     # Customize plot
     ax.set_yticks(range(len(top_data)))
     ax.set_yticklabels(top_data['LIB_IRIS'])
-    ax.set_xlabel('Score de densité (pondéré)')
-    ax.set_title(f'Top {top_n} IRIS Rennes - score de densité commerciale')
+    ax.set_xlabel('Density score (weighted)')
+    ax.set_title(f'Top {top_n} IRIS Rennes - commercial density score')
 
     # Add value labels on bars
     for i, (idx, row) in enumerate(top_data.iterrows()):
@@ -200,7 +200,7 @@ def display_commerce_widgets(analysis_results=None, iris_gdf=None, commerces_gdf
     plot_type = widgets.Dropdown(
         options=['Commerce Count', 'Type Distribution', 'Density Score'],
         value='Commerce Count',
-        description='Type de graphique :',
+        description='Chart type:',
         style={'description_width': 'initial'}
     )
 
