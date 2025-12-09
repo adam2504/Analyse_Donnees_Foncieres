@@ -9,12 +9,13 @@ Author: Adam Jouini
 """
 
 import pandas as pd
+from typing import Optional
 
 from ..config import EDUCATION_DATA_URL
 from .enseignement_loader import load_education_france_aggregated
 
 
-def load_population_data(url=None):
+def load_population_data(url: Optional[str] = None) -> pd.DataFrame:
     """
     Load raw population data for French communes.
 
@@ -41,7 +42,7 @@ def load_population_data(url=None):
     return df
 
 
-def clean_city_names(df):
+def clean_city_names(df: pd.DataFrame) -> pd.DataFrame:
     """
     Clean and standardize city names (handle Paris, Lyon, Marseille arrondissements).
 
@@ -63,7 +64,7 @@ def clean_city_names(df):
     return df_clean
 
 
-def aggregate_population_by_city(df, min_population=None):
+def aggregate_population_by_city(df: pd.DataFrame, min_population: Optional[int] = None) -> pd.DataFrame:
     """
     Aggregate population data by city (libgeo).
 
@@ -99,7 +100,7 @@ def aggregate_population_by_city(df, min_population=None):
 
     return df_grouped
 
-def merge_population_education(pop_df, edu_df):
+def merge_population_education(pop_df: pd.DataFrame, edu_df: pd.DataFrame) -> pd.DataFrame:
     """
     Merge population and education data by department.
 
@@ -126,7 +127,7 @@ def merge_population_education(pop_df, edu_df):
 
 
 # Convenience functions for common use cases
-def load_french_cities_100k(url_pop=None, url_edu=None):
+def load_french_cities_100k(url_pop: Optional[str] = None, url_edu: Optional[str] = None) -> pd.DataFrame:
     """
     Load and merge data for French cities with > 100k population.
     """
@@ -143,7 +144,7 @@ def load_french_cities_100k(url_pop=None, url_edu=None):
     return result_df
 
 
-def load_french_cities_all(url_pop=None, url_edu=None):
+def load_french_cities_all(url_pop: Optional[str] = None, url_edu: Optional[str] = None) -> pd.DataFrame:
     """
     Load and merge data for all French cities (no population filter).
     """

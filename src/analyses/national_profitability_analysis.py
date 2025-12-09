@@ -209,7 +209,7 @@ def extract_rents(
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extraction_folder)
 
-    rent_files = glob.glob(os.path.join(extraction_folder, "*.csv"))
+    rent_files = glob.glob(os.path.join(rents_folder, "*.csv"))
     rent_results = []
 
     for rent_file in rent_files:

@@ -10,6 +10,7 @@ Author: Adam Jouini
 
 import sys
 from pathlib import Path
+from typing import Dict, Any
 
 # Add parent directory to path for relative imports when run directly
 if __name__ == "__main__":
@@ -81,7 +82,7 @@ def calculate_student_density_stats(education_gdf: gpd.GeoDataFrame,
 def get_top_student_areas(stats_gdf: gpd.GeoDataFrame,
                          column: str = 'students_per_km2',
                          top_n: int = 10,
-                         ascending: bool = False) -> pd.DataFrame:
+                         ascending: bool = False) -> gpd.GeoDataFrame:
     """
     Get top N IRIS by student-related metric.
 
@@ -199,7 +200,7 @@ def identify_student_hubs(stats_gdf: gpd.GeoDataFrame,
 
 # Main analysis function (pipeline)
 def analyze_student_concentration(iris_gdf: gpd.GeoDataFrame,
-                                education_gdf: gpd.GeoDataFrame) -> dict:
+                                education_gdf: gpd.GeoDataFrame) -> Dict[str, Any]:
     """
     Complete student concentration analysis pipeline.
 

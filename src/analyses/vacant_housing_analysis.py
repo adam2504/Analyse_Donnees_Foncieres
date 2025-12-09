@@ -10,18 +10,18 @@ Author: Lucien (modularized)
 
 import pandas as pd
 import plotly.express as px
-import os
-from pathlib import Path
+import plotly.graph_objects as go
+from typing import Tuple, Optional, Dict, Any
 
 # Get project root directory
 script_dir = Path(__file__).parent  # src/analyses
 project_root = script_dir.parent.parent  # project root
 
 def load_vacant_housing_data(
-    insee_vacancy_url="https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/insee_rp_hist_1968.xlsx",
-    population_url="https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/POPULATION_MUNICIPALE_COMMUNES_FRANCE_lucien.xlsx",
-    communes_url="https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/communes-france-2025.csv"
-):
+    insee_vacancy_url: str = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/insee_rp_hist_1968.xlsx",
+    population_url: str = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/POPULATION_MUNICIPALE_COMMUNES_FRANCE_lucien.xlsx",
+    communes_url: str = "https://huggingface.co/datasets/analysedonneesfoncieresdata/analyse_fonciere_data/resolve/main/communes-france-2025.csv"
+) -> Tuple[pd.DataFrame, pd.DataFrame, pd.DataFrame]:
     """
     Load and prepare vacant housing data from INSEE sources.
 
@@ -69,7 +69,7 @@ def load_vacant_housing_data(
     return df_vac, df_pop, df_communes_coords
 
 
-def process_vacant_housing_data(df_vac, df_pop, df_communes_coords, min_population=100000):
+def process_vacant_housing_data(df_vac: pd.DataFrame, df_pop: pd.DataFrame, df_communes_coords: pd.DataFrame, min_population: int = 100000) -> pd.DataFrame:
     """
     Process and merge vacant housing data.
 
@@ -114,7 +114,7 @@ def process_vacant_housing_data(df_vac, df_pop, df_communes_coords, min_populati
     return df_vac_map
 
 
-def create_vacancy_map(df_vac_map):
+def create_vacancy_map(df_vac_map: pd.DataFrame) -> go.Figure:
     """
     Create an interactive Plotly map of vacant housing rates.
 
@@ -144,7 +144,7 @@ def create_vacancy_map(df_vac_map):
     return fig
 
 
-def create_vacancy_histogram(df_vac_map, top_n=20):
+def create_vacancy_histogram(df_vac_map: pd.DataFrame, top_n: int = 20) -> go.Figure:
     """
     Create a histogram of communes with lowest vacancy rates.
 
@@ -177,7 +177,7 @@ def create_vacancy_histogram(df_vac_map, top_n=20):
     return fig_hist
 
 
-def print_vacancy_summary(df_vac_map, top_n=20):
+def print_vacancy_summary(df_vac_map: pd.DataFrame, top_n: int = 20) -> None:
     """
     Print summary statistics for vacancy analysis.
 
@@ -200,7 +200,7 @@ def print_vacancy_summary(df_vac_map, top_n=20):
     print("Conversely, the reddest points on the map indicate cities where supply exceeds demand, which can hinder short-term profitability.")
 
 
-def analyze_vacant_housing(min_population=100000, top_n=20):
+def analyze_vacant_housing(min_population: int = 100000, top_n: int = 20) -> Dict[str, Any]:
     """
     Complete vacant housing analysis pipeline.
 
@@ -241,4 +241,3 @@ def analyze_vacant_housing(min_population=100000, top_n=20):
         'vacancy_histogram': vacancy_hist,
         'mean_vacancy_rate': df_vac_processed["part_log_vacant"].mean()
     }
-

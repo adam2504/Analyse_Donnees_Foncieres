@@ -9,13 +9,13 @@ Author: Adam Jouini
 """
 
 import pandas as pd
-from typing import Dict, Optional, List
+from typing import Dict, Any, Optional, List
 
 from ..loaders import load_french_cities_100k
 from ..loaders.geocoding_loader import geocode_french_cities
 
 
-def calculate_national_student_metrics(df: pd.DataFrame) -> Dict:
+def calculate_national_student_metrics(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Calculate various student density metrics for national analysis.
 
@@ -48,7 +48,7 @@ def calculate_national_student_metrics(df: pd.DataFrame) -> Dict:
     return metrics
 
 
-def analyze_student_distribution(df: pd.DataFrame) -> Dict:
+def analyze_student_distribution(df: pd.DataFrame) -> Dict[str, Any]:
     """
     Analyze the distribution of student concentrations.
 
@@ -137,7 +137,7 @@ def generate_city_rankings(df: pd.DataFrame, column: str = 'student_density', to
 
 
 # Main analysis function (national pipeline)
-def analyze_national_student_density(data_df: Optional[pd.DataFrame] = None, add_coordinates: bool = True) -> Dict:
+def analyze_national_student_density(data_df: Optional[pd.DataFrame] = None, add_coordinates: bool = True) -> Dict[str, Any]:
     """
     Complete national student density analysis pipeline.
 

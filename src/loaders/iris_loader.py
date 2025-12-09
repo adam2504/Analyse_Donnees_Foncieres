@@ -13,12 +13,13 @@ import pandas as pd
 import geopandas as gpd
 import requests
 from fiona import listlayers
+from typing import Optional
 
 from ..config import IRIS_GEOMETRIES_URL, IRIS_NAMES_URL, IRIS_GEOMETRIES_LOCAL_PATH
 from ..utils.cache import cached_download_dataframe
 
 
-def load_iris_geometries(url=None, local_path=None):
+def load_iris_geometries(url: Optional[str] = None, local_path: Optional[str] = None) -> gpd.GeoDataFrame:
     """
     Downloads and loads IRIS contour geometries from GPKG file.
 
@@ -50,7 +51,7 @@ def load_iris_geometries(url=None, local_path=None):
     return iris_gdf
 
 
-def load_iris_names(url=None):
+def load_iris_names(url: Optional[str] = None) -> pd.DataFrame:
     """
     Loads IRIS reference names and codes from Excel file.
 
@@ -68,7 +69,7 @@ def load_iris_names(url=None):
     return iris_names
 
 
-def load_iris_rennes(url_geometries=None, url_names=None):
+def load_iris_rennes(url_geometries: Optional[str] = None, url_names: Optional[str] = None) -> gpd.GeoDataFrame:
     """
     Loads and merges complete IRIS data for Rennes, including geometries and names.
 
@@ -97,7 +98,7 @@ def load_iris_rennes(url_geometries=None, url_names=None):
     return iris_rennes
 
 
-def standardize_iris_columns(df):
+def standardize_iris_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Standardize column names for easier use.
 

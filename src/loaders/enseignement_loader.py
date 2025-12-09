@@ -10,9 +10,10 @@ Author: Adam Jouini
 
 import pandas as pd
 import geopandas as gpd
+from typing import Optional, Union
 
 
-def load_enseignement_data(url=None):
+def load_enseignement_data(url: Optional[str] = None) -> pd.DataFrame:
     """
     Downloads and loads raw higher education establishments data.
 
@@ -38,7 +39,7 @@ def load_enseignement_data(url=None):
     return df
 
 
-def filter_education_rennes(df, require_gps=True):
+def filter_education_rennes(df: pd.DataFrame, require_gps: bool = True) -> Union[pd.DataFrame, gpd.GeoDataFrame]:
     """
     Filters education data for Rennes establishments.
 
@@ -70,7 +71,7 @@ def filter_education_rennes(df, require_gps=True):
     return df_rennes
 
 
-def standardize_education_columns(df):
+def standardize_education_columns(df: pd.DataFrame) -> pd.DataFrame:
     """
     Standardize column names for easier use.
 
@@ -91,7 +92,7 @@ def standardize_education_columns(df):
     return df_standardized
 
 
-def aggregate_education_france(df, exclude_overseas=True):
+def aggregate_education_france(df: pd.DataFrame, exclude_overseas: bool = True) -> pd.DataFrame:
     """
     Aggregates education data by department for France-wide statistics.
 
@@ -119,7 +120,7 @@ def aggregate_education_france(df, exclude_overseas=True):
 
 
 # Convenience functions for common use cases
-def load_education_rennes(url=None):
+def load_education_rennes(url: Optional[str] = None) -> gpd.GeoDataFrame:
     """
     Load and filter education data for Rennes with GPS coordinates.
     """
@@ -128,7 +129,7 @@ def load_education_rennes(url=None):
     return standardize_education_columns(filtered_data)
 
 
-def load_education_france_aggregated(url=None):
+def load_education_france_aggregated(url: Optional[str] = None) -> pd.DataFrame:
     """
     Load and aggregate education data for France by department.
     """

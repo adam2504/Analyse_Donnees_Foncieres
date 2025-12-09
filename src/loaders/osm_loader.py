@@ -10,9 +10,10 @@ Author: Adam Jouini
 
 import requests
 import geopandas as gpd
+from typing import Optional, Dict, List, Callable, Any
 
 
-def query_overpass_data(query, timeout=120):
+def query_overpass_data(query: str, timeout: int = 120) -> Dict[str, Any]:
     """
     Executes an Overpass API query and returns the JSON response.
 
@@ -39,7 +40,7 @@ def query_overpass_data(query, timeout=120):
         raise
 
 
-def parse_osm_elements(osm_data, category_logic=None):
+def parse_osm_elements(osm_data: Dict[str, Any], category_logic: Optional[Callable[[Dict[str, Any]], str]] = None) -> List[Dict[str, Any]]:
     """
     Parses OSM elements into a list of dictionaries with lat/lon and category.
 
@@ -73,7 +74,7 @@ def parse_osm_elements(osm_data, category_logic=None):
     return elements_list
 
 
-def load_transport_stops(commune="Rennes", admin_level="8", timeout=120):
+def load_transport_stops(commune: str = "Rennes", admin_level: str = "8", timeout: int = 120) -> gpd.GeoDataFrame:
     """
     Loads public transport stops from OSM for a given commune.
 
@@ -130,7 +131,7 @@ def load_transport_stops(commune="Rennes", admin_level="8", timeout=120):
     return gdf
 
 
-def load_commercial_establishments(commune="Rennes", admin_level="8", timeout=120):
+def load_commercial_establishments(commune: str = "Rennes", admin_level: str = "8", timeout: int = 120) -> gpd.GeoDataFrame:
     """
     Loads commercial establishments (restaurants, bars, supermarkets) from OSM.
 
