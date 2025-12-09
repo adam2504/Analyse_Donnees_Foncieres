@@ -39,8 +39,8 @@ def load_final_recommendation_data():
 
     # Import modular functions where available, fallback to original
     try:
-        from src.analyses.analyse_commerces import load_commerce_data
-        commerces_gdf = load_commerce_data()
+        from src.loaders.osm_loader import load_commercial_establishments
+        commerces_gdf = load_commercial_establishments()
         print("✅ Using modular commerce data")
     except ImportError:
         # Inline fallback for commerce loading
@@ -129,34 +129,95 @@ def load_final_recommendation_data():
         gdf = gpd.GeoDataFrame(df, geometry=gpd.points_from_xy(df.lon, df.lat), crs="EPSG:4326")
         return gdf
 
-    def recup_transports():
-        """Load transportation stops data for Rennes."""
-        overpass_url="http://overpass-api.de/api/interpreter"
-        query="""
-        [out:json][timeout:90];
-        area["name"="Rennes"]["admin_level"="8"]->.searchArea;
-        (
-          node["public_transport"="stop_position"](area.searchArea);
-          node["highway"="bus_stop"](area.searchArea);
-          node["railway"="station"](area.searchArea);
-          node["railway"="halt"](area.searchArea);
-          node["railway"="subway_entrance"](area.searchArea);
-        );
-        out center;
-        """
-        r=requests.post(overpass_url, data={"data":query}, timeout=120)
-        osm=r.json()
-        lst=[]
-        for e in osm['elements']:
-            if e['type']=='node':
-                lat, lon = e['lat'], e['lon']
-            elif 'center' in e:
-                lat, lon = e['center']['lat'], e['center']['lon']
-            else:
-                continue
-            lst.append({'lat':lat,'lon':lon})
-        gdf = gpd.GeoDataFrame(lst, geometry=gpd.points_from_xy([x['lon'] for x in lst],[x['lat'] for x in lst]), crs="EPSG:4326")
-        return gdf
+    try:
+        from src.loaders.osm_loader import load_transport_stops
+        transports_gdf = load_transport_stops()
+        print("✅ Using modular transport data")
+    except ImportError:
+        def query_overpass_data(query, timeout=120):
+    
+            overpass_url = "http://overpass-api.de/api/interpreter"
+
+            try:
+                response = requests.post(overpass_url, data={"data": query}, timeout=timeout)
+                response.raise_for_status()
+                osm_data = response.json()
+                print(f"Retrieved {len(osm_data['elements'])} OSM elements")
+                return osm_data
+            except Exception as e:
+                print(f"Error querying Overpass API: {e}")
+                raise
+
+        def parse_osm_elements(osm_data, category_logic=None):
+            elements_list = []
+
+            for element in osm_data.get('elements', []):
+                tags = element.get('tags', {})
+
+                # Extract coordinates
+                if element['type'] == 'node':
+                    lat, lon = element['lat'], element['lon']
+                elif 'center' in element:
+                    lat, lon = element['center']['lat'], element['center']['lon']
+                else:
+                    continue
+
+                item = {'lat': lat, 'lon': lon, 'tags': tags}
+
+                if category_logic:
+                    item['category'] = category_logic(tags)
+
+                elements_list.append(item)
+
+            return elements_list
+        
+        def load_transport_stops_if_error(commune="Rennes", admin_level="8", timeout=120):
+            print(f"Loading transport stops for {commune}...")
+
+            query = f"""
+            [out:json][timeout:90];
+            area["name"="{commune}"]["admin_level"="{admin_level}"]->.searchArea;
+            (
+            node["public_transport"="stop_position"](area.searchArea);
+            node["highway"="bus_stop"](area.searchArea);
+            node["railway"="station"](area.searchArea);
+            node["railway"="halt"](area.searchArea);
+            node["railway"="subway_entrance"](area.searchArea);
+            );
+            out center;
+            """
+
+            osm_data = query_overpass_data(query, timeout)
+
+            def categorize_transport(tags):
+                if 'bus' in tags.get('highway', '') or tags.get('public_transport') == 'stop_position':
+                    return 'Bus'
+                elif 'subway' in tags.get('railway', '') or 'subway' in tags.get('public_transport', ''):
+                    return 'Métro'
+                elif 'station' in tags.get('railway', '') or 'halt' in tags.get('railway', ''):
+                    return 'Train'
+                else:
+                    return 'Autre'
+
+            elements = parse_osm_elements(osm_data, category_logic=categorize_transport)
+
+            # Rename 'category' to 'categorie' for compatibility with existing code
+            for element in elements:
+                if 'category' in element:
+                    element['categorie'] = element.pop('category')
+
+            # Create GeoDataFrame
+            gdf = gpd.GeoDataFrame(
+                elements,
+                geometry=gpd.points_from_xy([e['lon'] for e in elements], [e['lat'] for e in elements]),
+                crs="EPSG:4326"
+            )
+
+            print(f"Loaded {len(gdf)} transport stops")
+            return gdf
+        
+        transports_gdf = load_transport_stops_if_error()
+        print("⚠️ Using fallback transport data")
 
     def calcul_densites(iris_gdf, commerces_gdf, etudiants_gdf, transports_gdf):
         """Calculate density statistics for Rennes IRIS."""
@@ -188,7 +249,7 @@ def load_final_recommendation_data():
         return merged
 
     etudiants_gdf = recup_etudiants()
-    transports_gdf = recup_transports()
+    transports_gdf = load_transport_stops()
     merged_gdf = calcul_densites(iris_gdf, commerces_gdf,
                                etudiants_gdf, transports_gdf)
 
@@ -375,12 +436,12 @@ def display_recommendation_widgets(merged_data=None):
 
     # Load data if not provided
     if merged_data is None:
-        print("🔄 Chargement des données d'analyse finale...")
+        print("🔄 Loading final analysis data...")
         iris_gdf, commerces_gdf, etudiants_gdf, transports_gdf, merged_data = load_final_recommendation_data()
     else:
-        print("⚡ Utilisation des données fournies")
+        print("⚡ Use of data provided")
 
-    print("\n🧭 Création de l'interface d'analyse d'investissement interactif...")
+    print("\n🧭 Creation of the interactive investment analysis interface...")
 
     # Create investment recommendations
     recommendations = create_investment_recommendations(merged_data)
@@ -503,8 +564,8 @@ def show_investment_recommendations():
     """
     Execute the full investment recommendation pipeline with widgets.
     """
-    print("🎯 Recommandations d'Investissement Étudiant - Rennes")
-    print("Analyse multi-critères: Étudiants + Commerces + Transports")
+    print("🎯 Student Investment Recommendations - Rennes")
+    print("Multi-criteria analysis: Students + Shops + Transport")
 
     # Execute pipeline
     _, _, _, _, merged_data = load_final_recommendation_data()
