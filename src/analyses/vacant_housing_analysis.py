@@ -12,6 +12,7 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 from typing import Tuple, Optional, Dict, Any
+from pathlib import Path
 
 # Get project root directory
 script_dir = Path(__file__).parent  # src/analyses

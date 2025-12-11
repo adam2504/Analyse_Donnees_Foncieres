@@ -283,19 +283,19 @@ def create_3d_investment_plot(merged_gdf,
     # Create hover text
     merged_gdf['hover_text'] = (
         "<b>IRIS:</b> " + merged_gdf['LIB_IRIS'].astype(str) + "<br>" +
-        "<b>Étudiants/km²:</b> " + merged_gdf['students_per_km2'].round(1).astype(str) + "<br>" +
-        "<b>Commerces/km²:</b> " + merged_gdf['score_densite'].round(1).astype(str) + "<br>" +
+        "<b>Students/km²:</b> " + merged_gdf['students_per_km2'].round(1).astype(str) + "<br>" +
+        "<b>Shops/km²:</b> " + merged_gdf['score_densite'].round(1).astype(str) + "<br>" +
         "<b>Transports/km²:</b> " + merged_gdf['densite_arrets_km2'].round(1).astype(str) + "<br>" +
-        "<b>Total Étudiants:</b> " + merged_gdf['nb_etudiants'].astype(int).astype(str) + "<br>" +
+        "<b>Total Students:</b> " + merged_gdf['nb_etudiants'].astype(int).astype(str) + "<br>" +
         "<b>Total Commerces:</b> " + merged_gdf['total_commerces'].astype(int).astype(str)
     )
 
     # Set color scale and title
     color_scales = {
-        "students_per_km2": ("Viridis", "Étudiants/km²"),
-        "score_densite": ("Plasma", "Score densité commerces"),
+        "students_per_km2": ("Viridis", "Students/km²"),
+        "score_densite": ("Plasma", "Business density score"),
         "densite_arrets_km2": ("Cividis", "Transports/km²"),
-        "nb_etudiants": ("Blues", "Nombre d'étudiants")
+        "nb_etudiants": ("Blues", "Number of Students")
     }
 
     colorscale, colorbar_title = color_scales.get(color_by, ("Viridis", color_by))
@@ -337,11 +337,11 @@ def create_3d_investment_plot(merged_gdf,
 
     # Update layout
     fig.update_layout(
-        title="🧭 Carte d'Investissement Étudiant - Rennes IRIS",
+        title="🧭 Student Investment Card - Rennes IRIS",
         scene=dict(
-            xaxis_title='Étudiants/km²',
-            yaxis_title='Densité Commerciale',
-            zaxis_title='Densité Transports/km²',
+            xaxis_title='Students/km²',
+            yaxis_title='Commercial Density',
+            zaxis_title='Transport density/km²',
             camera=dict(
                 eye=dict(x=1.5, y=1.5, z=1.5)
             )
@@ -384,13 +384,13 @@ def create_investment_recommendations(merged_gdf, top_n=5):
 
     # Rename columns for display
     top_investments = top_investments.rename(columns={
-        'LIB_IRIS': 'Quartier',
+        'LIB_IRIS': 'District',
         'code_iris': 'Code IRIS',
-        'students_per_km2': 'Étudiants/km²',
-        'score_densite': 'Commerces/km²',
+        'students_per_km2': 'Students/km²',
+        'score_densite': 'Shops/km²',
         'densite_arrets_km2': 'Transports/km²',
-        'nb_etudiants': 'Total Étudiants',
-        'investment_score': 'Score Investissement'
+        'nb_etudiants': 'Total Students',
+        'investment_score': 'Investment Score'
     })
 
     return top_investments
@@ -406,19 +406,19 @@ def display_investment_analysis_summary(merged_gdf):
         Processed data with density calculations
     """
 
-    print("📊 Résumé de l'Analyse d'Investissement - Rennes")
+    print("📊 Investment Analysis Summary - Rennes")
     print("=" * 50)
 
     total_students = merged_gdf['nb_etudiants'].sum()
     total_commerce = merged_gdf['total_commerces'].sum()
     total_transport = merged_gdf['total_arrets'].sum()
 
-    print(f"• IRIS analysés: {len(merged_gdf)}")
-    print(f"• Total étudiants: {total_students:,.0f}")
-    print(f"• Établissements commerciaux: {total_commerce}")
-    print(f"• Arrêts de transport: {total_transport}")
+    print(f"• IRIS analyzed: {len(merged_gdf)}")
+    print(f"• Total students: {total_students:,.0f}")
+    print(f"• Commercial establishments: {total_commerce}")
+    print(f"• Transport stops: {total_transport}")
 
-    print("\n🏆 Top 3 Secteurs pour l'Investissement Étudiant:")
+    print("\n🏆 Top 3 Sectors for Student Investment:")
 
     top_3 = create_investment_recommendations(merged_gdf, 3)
     display(top_3)
@@ -449,13 +449,13 @@ def display_recommendation_widgets(merged_data=None):
     # Widget controls
     color_by = widgets.Dropdown(
         options={
-            'Étudiants/km²': 'students_per_km2',
-            'Score Commercial': 'score_densite',
-            'Densité Transports': 'densite_arrets_km2',
-            'Nombre Étudiants': 'nb_etudiants'
+            'Students/km²': 'students_per_km2',
+            'Commercial Score': 'score_densite',
+            'Transport Density': 'densite_arrets_km2',
+            'Number of Students': 'nb_etudiants'
         },
         value='students_per_km2',
-        description='Coloration :',
+        description='Coloring:',
         style={'description_width': 'initial'}
     )
 
@@ -464,13 +464,13 @@ def display_recommendation_widgets(merged_data=None):
         min=2,
         max=12,
         step=1,
-        description='Taille points :',
+        description='Point size:',
         style={'description_width': 'initial'}
     )
 
     show_trends = widgets.Checkbox(
         value=False,
-        description='Lignes tendance',
+        description='Trendy lines',
         style={'description_width': 'initial'}
     )
 
@@ -485,9 +485,9 @@ def display_recommendation_widgets(merged_data=None):
 
     show_recommendations = widgets.ToggleButton(
         value=False,
-        description='Afficher Recommandations',
+        description='Show Recommendations',
         button_style='info',
-        tooltip='Afficher les meilleures opportunités d\'investissement'
+        tooltip='Show the best investment opportunities'
     )
 
     # Output widgets
@@ -519,12 +519,12 @@ def display_recommendation_widgets(merged_data=None):
         with recommendations_output:
             recommendations_output.clear_output(True)
             if show_recommendations.value:
-                print("🏆 Meilleures Opportunités d'Investissement:")
+                print("🏆 Best Investment Opportunities:")
                 display(recommendations.head(10))
 
     # Update button
     update_button = widgets.Button(
-        description='Mettre à jour',
+        description='Update',
         button_style='primary'
     )
     update_button.on_click(lambda clicked: (update_plot(), update_recommendations()))
@@ -547,7 +547,7 @@ def display_recommendation_widgets(merged_data=None):
     update_recommendations()
 
     display(VBox([
-        widgets.HTML("<h3>🧭 Analyse d'Investissement Étudiant - Rennes</h3>"),
+        widgets.HTML("<h3>🧭 Student Investment Analysis - Rennes</h3>"),
         controls_box,
         plot_output,
         recommendations_output
@@ -556,7 +556,7 @@ def display_recommendation_widgets(merged_data=None):
     # Summary
     display_investment_analysis_summary(merged_data)
 
-    print("✅ Interface interactive d'analyse d'investissement prête!")
+    print("✅ Interactive investment analysis interface ready!")
 
 
 # Convenience function for pipeline execution

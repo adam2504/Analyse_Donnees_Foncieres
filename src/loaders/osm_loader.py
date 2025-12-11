@@ -178,6 +178,11 @@ def load_commercial_establishments(commune: str = "Rennes", admin_level: str = "
 
     elements = parse_osm_elements(osm_data, category_logic=categorize_commerce)
 
+    # Rename 'category' to 'categorie' for compatibility with existing code
+    for element in elements:
+        if 'category' in element:
+            element['categorie'] = element.pop('category')
+
     # Create GeoDataFrame
     gdf = gpd.GeoDataFrame(
         elements,
